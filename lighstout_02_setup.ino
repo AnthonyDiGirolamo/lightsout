@@ -109,6 +109,7 @@ class LightsOut {
 };
 
 void max_print(char* string, int col = -1, int row = -1) {
+  char buffer[32];
   strcpy_P(buffer, string);
   if (col >= 0 && row >= 0)
     Serial.println(buffer);
@@ -133,6 +134,7 @@ void loop() {
     print_board(game.push(i));
   }
   if (game.has_won())
+    max_print(string_win);
 
   // Run a few games
   game = LightsOut();

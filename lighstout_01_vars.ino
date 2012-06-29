@@ -1,4 +1,3 @@
-char buffer[32];
 char string_win[]      PROGMEM = "You Win";
 char string_perfect[]  PROGMEM = "Perfect";
 char string_level[]    PROGMEM = "Level";
