@@ -1,5 +1,5 @@
 void print_16_bits(uint16_t n) {
-  char s[16];
+  char s[32];
   sprintf(s, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
     (n & 0x08000 ? 1 : 0), \
     (n & 0x04000 ? 1 : 0), \
@@ -45,12 +45,15 @@ void print_board(uint16_t board) {
 class LightsOut {
   public:
     uint8_t current_level;
+    uint8_t required_moves;
+    uint8_t current_move_count;
     uint16_t current_board;
+    uint16_t current_board_solution;
 
     LightsOut() {
       randomSeed(31415926);
-      current_level = 1;
-      randomize_board();
+      current_level = 0;
+      advance_level();
     }
     void randomize_board() {
       current_board = (uint16_t) rand();
@@ -58,11 +61,13 @@ class LightsOut {
     void advance_level() {
       randomize_board();
       current_level++;
+      current_move_count = 0;
+      current_board_solution = find_solution();
+      required_moves = count_ones(current_board_solution);
     }
     uint8_t has_won() {
       return (current_board == 0);
     }
-
     uint16_t toggle(uint8_t space) {
       current_board ^= space_masks[space];
       return current_board;
@@ -90,36 +95,61 @@ class LightsOut {
       }
       return solution;
     }
+    unsigned int count_ones(unsigned int number) {
+      unsigned int v = number; // count the number of bits set in v
+      unsigned int c = 0; // c accumulates the total bits set in v
+      for (c = 0; v; c++) {
+        v &= v - 1; // clear the least significant bit set
+      }
+      //for (c = 0; v; v >>= 1) {
+          //c += v & 1;
+      //}
+      return c;
+    }
 };
 
+void max_print(char* string, int col = -1, int row = -1) {
+  strcpy_P(buffer, string);
+  if (col >= 0 && row >= 0)
+    Serial.println(buffer);
+    //alpha_board.write_string(buffer, col, row);
+  else
+    Serial.println(buffer);
+    //alpha_board.write_string(buffer);
+}
 
 void setup() {
   Serial.begin(9600);
 }
 
-LightsOut lo = LightsOut();
 
 void loop() {
   int i = 0;
 
-  print_16_bits(lo.current_board);
-  lo.advance_level();
-
-  lo.current_board = 65535;
-
+  // Test pushing buttons
+  LightsOut game = LightsOut();
+  game.current_board = 65535;
   for(i = 0; i<16; i++) {
-    print_board(lo.push(i));
+    print_board(game.push(i));
   }
+  if (game.has_won())
 
-  if (lo.has_won())
-    Serial.print("You win!\n");
+  // Run a few games
+  game = LightsOut();
+  for(i=0; i<3; i++) {
+    max_print(string_level);
+    Serial.println(game.current_level);
+    max_print(string_board);
+    print_16_bits(game.current_board);
+    max_print(string_solution);
+    print_16_bits(game.current_board_solution);
+    max_print(string_moves);
+    Serial.println(game.required_moves);
+    if (game.has_won())
+      max_print(string_win);
 
-  //Serial.println(sizeof(solving_matrix[0]));
-  //Serial.println(sizeof(solving_matrix));
-
-  lo.current_board = levels[0];
-  print_16_bits(lo.current_board);
-  print_16_bits(lo.find_solution());
+    game.advance_level();
+  }
 
   delay(999999);
 }

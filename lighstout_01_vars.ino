@@ -1,3 +1,11 @@
+char buffer[32];
+char string_win[]      PROGMEM = "You Win";
+char string_perfect[]  PROGMEM = "Perfect";
+char string_level[]    PROGMEM = "Level";
+char string_board[]    PROGMEM = "Board";
+char string_solution[] PROGMEM = "Solution";
+char string_moves[]    PROGMEM = "Moves";
+
 Adafruit_WS2801 strip = Adafruit_WS2801(16, STRIP_DATA, STRIP_CLK);
 
 MAX6954 alpha_board = MAX6954(DATAOUT, DATAIN, CLK, CS1, CS2);
@@ -54,12 +62,14 @@ obase=2;ibase=16;
 FFFF
 */
 //}
+/*
 prog_uint16_t levels[] = {
   0x2687,
   0x6688,
   0x8B91,
   0xACA0,
 };
+*/
 prog_uint16_t solving_matrix[] = {
   0xD808,
   0xE404,
