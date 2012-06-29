@@ -16,3 +16,5 @@
 #define DATAIN     12 // MISO
 #define CLK        13 // sck
 
+// vim: ft=cpp
+

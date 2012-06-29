@@ -44,74 +44,82 @@ void print_board(uint16_t board) {
 
 class LightsOut {
   public:
+    uint8_t current_level;
+    uint16_t current_board;
+
     LightsOut() {
+      randomSeed(31415926);
+      current_level = 1;
+      randomize_board();
+    }
+    void randomize_board() {
+      current_board = (uint16_t) rand();
+    }
+    void advance_level() {
+      randomize_board();
+      current_level++;
+    }
+    uint8_t has_won() {
+      return (current_board == 0);
+    }
+
+    uint16_t toggle(uint8_t space) {
+      current_board ^= space_masks[space];
+      return current_board;
+    }
+    uint16_t push(uint8_t space) {
+      current_board ^= space_masks[space];
+      current_board ^= space_masks[neighbors[space][0]];
+      current_board ^= space_masks[neighbors[space][1]];
+      current_board ^= space_masks[neighbors[space][2]];
+      current_board ^= space_masks[neighbors[space][3]];
+      return current_board;
+    }
+    uint16_t find_solution() {
+      uint16_t a, b, x, solution;
+      solution = 0;
+      for(int r=0; r<16; r++) {
+        x = 0;
+        for(int c=15; c>=0; c--) {
+          a = (solving_matrix[r] & space_masks[c]) >> (c); // Unpack matrix value
+          b = (current_board & space_masks[c]) >> (c); // Unpack level value
+          x += (a*b);
+        }
+        x %= 2;
+        solution |= (x << (15-r));  // Pack
+      }
+      return solution;
     }
 };
 
-uint16_t find_solution(uint16_t level) {
-  uint16_t a, b, x, solution;
-  solution = 0;
-  for(int r=0; r<16; r++) {
-    x = 0;
-    for(int c=15; c>=0; c--) {
-      a = (solving_matrix[r] & space_masks[c]) >> (c); // Unpack matrix value
-      b = (level & space_masks[c]) >> (c); // Unpack level value
-      x += (a*b);
-    }
-    x %= 2;
-    solution |= (x << (15-r));  // Pack
-  }
-  print_16_bits(solution);
-  return solution;
-}
-
-
-uint16_t toggle(uint16_t board, uint16_t space) {
-  return board ^ space_masks[space];
-}
-
-uint16_t push(uint16_t board, uint16_t space) {
-  uint16_t b = board;
-  b ^= space_masks[space];
-  b ^= space_masks[neighbors[space][0]];
-  b ^= space_masks[neighbors[space][1]];
-  b ^= space_masks[neighbors[space][2]];
-  b ^= space_masks[neighbors[space][3]];
-  return b;
-}
 
 void setup() {
   Serial.begin(9600);
 }
 
+LightsOut lo = LightsOut();
+
 void loop() {
-  uint16_t b;
+  int i = 0;
 
-  b = 65535;
-  print_board(b);
-  for(int i = 0; i<16; i++)
-    b = toggle(b, i);
-  print_board(b);
+  print_16_bits(lo.current_board);
+  lo.advance_level();
 
-  for(int i = 0; i<16; i++){
-    print_board(push(b, i));
+  lo.current_board = 65535;
+
+  for(i = 0; i<16; i++) {
+    print_board(lo.push(i));
   }
 
-  if (b == 0);
+  if (lo.has_won())
     Serial.print("You win!\n");
 
-  randomSeed(3);
-  print_16_bits( (uint16_t) rand() );
-  print_16_bits( (uint16_t) rand() );
-  print_16_bits( (uint16_t) rand() );
-  print_16_bits( (uint16_t) rand() );
-  print_16_bits( (uint16_t) rand() );
+  //Serial.println(sizeof(solving_matrix[0]));
+  //Serial.println(sizeof(solving_matrix));
 
-  Serial.println(sizeof(solving_matrix[0]));
-  Serial.println(sizeof(solving_matrix));
-
-  print_16_bits(levels[0]);
-  find_solution(levels[0]);
+  lo.current_board = levels[0];
+  print_16_bits(lo.current_board);
+  print_16_bits(lo.find_solution());
 
   delay(999999);
 }
