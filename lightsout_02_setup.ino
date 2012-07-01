@@ -1,3 +1,24 @@
+// Create a 24 bit color value from R,G,B
+uint32_t Color(byte r, byte g, byte b)
+{
+  uint32_t c;
+  c = r;
+  c <<= 8;
+  c |= g;
+  c <<= 8;
+  c |= b;
+  return c;
+}
+void colorWipe(uint32_t c, uint8_t wait) {
+  int i;
+
+  for (i=0; i < strip.numPixels(); i++) {
+      strip.setPixelColor(i, c);
+      strip.show();
+      delay(wait);
+  }
+}
+
 void print_16_bits(uint16_t n) {
   char s[32];
   sprintf(s, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
@@ -18,6 +39,21 @@ void print_16_bits(uint16_t n) {
     (n & 0x02 ? 1 : 0), \
     (n & 0x01 ? 1 : 0));
   Serial.println(s);
+
+  uint16_t light = 0;
+  uint32_t color;
+
+  for(int i=15; i>=0; i--) {
+    light = (n & space_masks[i]) >> (i); // Unpack level value
+    if (light) {
+      color = Color(0, 0, 255);
+    }
+    else {
+      color = Color(0, 0, 0);
+    }
+    strip.setPixelColor(board_light_index[i], color);
+  }
+  strip.show();
 }
 
 void print_4_bits(uint16_t n) {
@@ -108,19 +144,50 @@ class LightsOut {
     }
 };
 
+//uint16_t read_buttons() {
+  ////buttons1 = mcp.readGPIOAB();
+  //if (buttons1 != buttons2) {
+    //buttons3 = buttons2;
+    //buttons2 = buttons1;
+    //print_16_bits(buttons1);
+    //delay(40);
+  //}
+  //return buttons1;
+//}
+
 void max_print(char* string, int col = -1, int row = -1) {
   char buffer[32];
   strcpy_P(buffer, string);
-  if (col >= 0 && row >= 0)
-    Serial.println(buffer);
-    //alpha_board.write_string(buffer, col, row);
-  else
-    Serial.println(buffer);
-    //alpha_board.write_string(buffer);
+  if (col >= 0 && row >= 0) {
+    //Serial.println(buffer);
+    alpha_board.write_string(buffer, col, row);
+  }
+  else {
+    //Serial.println(buffer);
+    alpha_board.write_string(buffer, 0, 0);
+  }
 }
+
 
 void setup() {
   Serial.begin(9600);
+  alpha_board.begin();
+  alpha_board.set_global_brightness(5);
+
+  strip.begin();
+  strip.show();
+
+  //for(int i=0; i<16; i++){
+    //strip.setPixelColor(board_light_index[i], Color(255,0,0));
+    //strip.show();
+    //delay(1000);
+  //}
+  max_print(string_testing, 0, 0);
+  max_print(string_testing, 1, 0);
+  colorWipe(Color(0, 0, 255), 50);
+  colorWipe(Color(0, 255, 0), 50);
+  colorWipe(Color(255, 0, 0), 50);
+  colorWipe(Color(255, 255, 255), 50);
 }
 
 
@@ -130,26 +197,36 @@ void loop() {
   // Test pushing buttons
   LightsOut game = LightsOut();
   game.current_board = 65535;
+  print_16_bits(game.current_board);
+  delay(2000);
   for(i = 0; i<16; i++) {
     print_board(game.push(i));
+    print_16_bits(game.current_board);
+    delay(2000);
   }
   if (game.has_won())
     max_print(string_win);
 
+  delay(1000);
   // Run a few games
   game = LightsOut();
-  for(i=0; i<3; i++) {
+  for(i=0; i<1; i++) {
     max_print(string_level);
     Serial.println(game.current_level);
+    delay(1000);
     max_print(string_board);
     print_16_bits(game.current_board);
+    delay(10000);
     max_print(string_solution);
     print_16_bits(game.current_board_solution);
+    delay(10000);
     max_print(string_moves);
     Serial.println(game.required_moves);
+    delay(10000);
     if (game.has_won())
       max_print(string_win);
 
+    delay(10000);
     game.advance_level();
   }
 

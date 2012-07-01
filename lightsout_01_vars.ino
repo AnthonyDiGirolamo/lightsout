@@ -1,9 +1,10 @@
-char string_win[]      PROGMEM = "You Win";
-char string_perfect[]  PROGMEM = "Perfect";
-char string_level[]    PROGMEM = "Level";
-char string_board[]    PROGMEM = "Board";
+char string_win[]      PROGMEM = "You Win ";
+char string_perfect[]  PROGMEM = "Perfect ";
+char string_level[]    PROGMEM = "Level   ";
+char string_board[]    PROGMEM = "Board   ";
 char string_solution[] PROGMEM = "Solution";
-char string_moves[]    PROGMEM = "Moves";
+char string_moves[]    PROGMEM = "Moves   ";
+char string_testing[]  PROGMEM = "TESTING ";
 
 Adafruit_WS2801 strip = Adafruit_WS2801(16, STRIP_DATA, STRIP_CLK);
 
@@ -48,6 +49,25 @@ prog_uint8_t neighbors[16][4] = {
   {1,  9,  12, 14},
   {2,  10, 13, 15},
   {3,  11, 14, 12}
+};
+
+prog_uint8_t board_light_index[] = {
+  15,
+  14,
+  13,
+  12,
+  8,
+  9,
+  10,
+  11,
+  7,
+  6,
+  5,
+  4,
+  0,
+  1,
+  2,
+  3
 };
 
 
