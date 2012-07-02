@@ -4,7 +4,7 @@ char string_level[]    PROGMEM = "Level   ";
 char string_board[]    PROGMEM = "Board   ";
 char string_solution[] PROGMEM = "Solution";
 char string_moves[]    PROGMEM = "Moves   ";
-char string_testing[]  PROGMEM = "TESTING ";
+char string_testing[]  PROGMEM = "TEST.TEST";
 
 Adafruit_WS2801 strip = Adafruit_WS2801(16, STRIP_DATA, STRIP_CLK);
 
@@ -89,6 +89,7 @@ prog_uint16_t levels[] = {
   0xACA0,
 };
 */
+
 prog_uint16_t solving_matrix[] = {
   0xD808,
   0xE404,
@@ -127,5 +128,14 @@ prog_uint16_t uint16_t matrix_a[16][16] = {
   {0,0,1,0,0,0,0,0,0,0,1,0,0,1,1,1},
   {0,0,0,1,0,0,0,0,0,0,0,1,1,0,1,1} };
 */
+
+prog_uint32_t color_scheme[] = {
+  0xFF9000, // on
+  0x0000FF, // off
+  0xFFFFFF, // on
+  0x000000, // off
+}
+
+uint8_t colors = 0;
 
 // vim: ft=cpp

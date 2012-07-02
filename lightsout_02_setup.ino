@@ -19,7 +19,7 @@ void colorWipe(uint32_t c, uint8_t wait) {
   }
 }
 
-void print_16_bits(uint16_t n) {
+void print_16_bits(uint16_t number) {
   char s[32];
   sprintf(s, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
     (n & 0x08000 ? 1 : 0), \
@@ -40,18 +40,11 @@ void print_16_bits(uint16_t n) {
     (n & 0x01 ? 1 : 0));
   Serial.println(s);
 
-  uint16_t light = 0;
-  uint32_t color;
+  uint16_t lit = 0;
 
   for(int i=15; i>=0; i--) {
-    light = (n & space_masks[i]) >> (i); // Unpack level value
-    if (light) {
-      color = Color(0, 0, 255);
-    }
-    else {
-      color = Color(0, 0, 0);
-    }
-    strip.setPixelColor(board_light_index[i], color);
+    lit = (number & space_masks[i]) >> i;
+    strip.setPixelColor(board_light_index[i], (lit ? color_scheme[colors] : color_scheme[colors+1]));
   }
   strip.show();
 }
