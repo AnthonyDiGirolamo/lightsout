@@ -39,9 +39,10 @@ void print_16_bits(uint16_t number) {
     (n & 0x02 ? 1 : 0), \
     (n & 0x01 ? 1 : 0));
   Serial.println(s);
+}
 
+void update_board(uint16_t) {
   uint16_t lit = 0;
-
   for(int i=15; i>=0; i--) {
     lit = (number & space_masks[i]) >> i;
     strip.setPixelColor(board_light_index[i], (lit ? color_scheme[colors] : color_scheme[colors+1]));
@@ -207,15 +208,21 @@ void loop() {
     max_print(string_level);
     Serial.println(game.current_level);
     delay(1000);
+
     max_print(string_board);
     print_16_bits(game.current_board);
+    update_board(game.current_board);
     delay(10000);
+
     max_print(string_solution);
     print_16_bits(game.current_board_solution);
+    update_board(game.current_board_solution);
     delay(10000);
+
     max_print(string_moves);
     Serial.println(game.required_moves);
     delay(10000);
+
     if (game.has_won())
       max_print(string_win);
 
