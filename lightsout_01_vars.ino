@@ -1,3 +1,27 @@
+// Components Setup
+
+#define STRIP_CLK  6
+#define STRIP_DATA 5
+#define CS1        9  // MAX6954 1
+#define CS2        8  // MAX6954 2
+#define DATAOUT    11 // MOSI
+#define DATAIN     12 // MISO
+#define CLK        13 // sck
+
+Adafruit_WS2801 strip = Adafruit_WS2801(16, STRIP_DATA, STRIP_CLK);
+
+MAX6954 alpha_board = MAX6954(DATAOUT, DATAIN, CLK, CS1, CS2);
+
+Adafruit_MCP23017 mcp;
+
+// Number Constants
+
+#define RANDOMSEED 31415926
+#define MENU_DELAY 2000
+
+// Strings
+
+char string_empty[]    PROGMEM = "        ";
 char string_win[]      PROGMEM = "You Win ";
 char string_perfect[]  PROGMEM = "Perfect ";
 char string_level[]    PROGMEM = "Level   ";
@@ -6,11 +30,39 @@ char string_solution[] PROGMEM = "Solution";
 char string_moves[]    PROGMEM = "Moves   ";
 char string_testing[]  PROGMEM = "TEST.TEST";
 
-Adafruit_WS2801 strip = Adafruit_WS2801(16, STRIP_DATA, STRIP_CLK);
+// Main Menu
+char string_mainmenu[] PROGMEM = "Main.Menu";
+char string_lights[]   PROGMEM = "Lights  ";
+char string_out[]      PROGMEM = "Out     ";
+char string_color[]    PROGMEM = "Color   ";
+char string_memory[]   PROGMEM = "Memory  ";
+char string_chooser[]  PROGMEM = "Picker  ";
 
-MAX6954 alpha_board = MAX6954(DATAOUT, DATAIN, CLK, CS1, CS2);
+#define MAINMENU 0
+#define LIGHTS 1
+#define MEMORY 2
+#define PICKER 3
 
-Adafruit_MCP23017 mcp;
+uint8_t mode = MAINMENU;
+
+// Color Schemes
+prog_uint32_t main_menu_color_schemes[] = {
+  0x252525, // off
+  0xFF0000, // item 1
+  0x00FF00, // item 2
+  0x0000FF, // item 3
+  0xFF9000, // item 4
+}
+
+prog_uint32_t lights_out_color_schemes[] = {
+  0xFF9000, // on
+  0x0000FF, // off
+  0xFFFFFF, // on
+  0x000000, // off
+}
+uint8_t current_scheme = 0; // index of on color in color_schemes array
+
+// Lookup Tables
 
 prog_uint16_t space_masks[] = {
   0x1,
@@ -51,6 +103,11 @@ prog_uint8_t neighbors[16][4] = {
   {3,  11, 14, 12}
 };
 
+/* 15 14 13 12
+ * 11 10 9  8
+ * 7  6  5  4
+ * 3  2  1  0 */
+
 prog_uint8_t board_light_index[] = {
   15,
   14,
@@ -70,25 +127,8 @@ prog_uint8_t board_light_index[] = {
   3
 };
 
-
-//prog_uint16_t uint16_t levels[] = {
-/*
-obase=16;ibase=2;
-1001000111001111
-1111111111111111
-obase=2;ibase=16;
-91CF
-FFFF
-*/
-//}
-/*
-prog_uint16_t levels[] = {
-  0x2687,
-  0x6688,
-  0x8B91,
-  0xACA0,
-};
-*/
+// Matrix for solving a given lights out game
+// This is a matrix of 1's and 0's packed into 16 bit integers
 
 prog_uint16_t solving_matrix[] = {
   0xD808,
@@ -128,14 +168,5 @@ prog_uint16_t uint16_t matrix_a[16][16] = {
   {0,0,1,0,0,0,0,0,0,0,1,0,0,1,1,1},
   {0,0,0,1,0,0,0,0,0,0,0,1,1,0,1,1} };
 */
-
-prog_uint32_t color_scheme[] = {
-  0xFF9000, // on
-  0x0000FF, // off
-  0xFFFFFF, // on
-  0x000000, // off
-}
-
-uint8_t colors = 0;
 
 // vim: ft=cpp

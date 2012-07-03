@@ -45,7 +45,7 @@ void update_board(uint16_t) {
   uint16_t lit = 0;
   for(int i=15; i>=0; i--) {
     lit = (number & space_masks[i]) >> i;
-    strip.setPixelColor(board_light_index[i], (lit ? color_scheme[colors] : color_scheme[colors+1]));
+    strip.setPixelColor(board_light_index[i], (lit ? lights_out_color_schemes[current_scheme] : lights_out_color_schemes[current_scheme+1]));
   }
   strip.show();
 }
@@ -81,7 +81,7 @@ class LightsOut {
     uint16_t current_board_solution;
 
     LightsOut() {
-      randomSeed(31415926);
+      randomSeed(RANDOMSEED);
       current_level = 0;
       advance_level();
     }
@@ -176,61 +176,110 @@ void setup() {
     //strip.show();
     //delay(1000);
   //}
+
   max_print(string_testing, 0, 0);
   max_print(string_testing, 1, 0);
   colorWipe(Color(0, 0, 255), 50);
   colorWipe(Color(0, 255, 0), 50);
   colorWipe(Color(255, 0, 0), 50);
   colorWipe(Color(255, 255, 255), 50);
+
+}
+
+void main_menu() {
+  int i = 0;
+  unsigned long time = millis();
+  uint8_t new_mode = 255;
+  while (new_mode != mode) {
+    // check for button press and set mode
+
+    // if MENU_DELAY time has elapsed
+    if (millis() - time > MENU_DELAY) {
+      // clear colors
+      colorWipe(main_menu_color_schemes[current_scheme], 0);
+
+      if (i == MAINMENU) {
+        max_print(string_mainmenu, 0, 0);
+        max_print(string_empty, 1, 0);
+        strip.setPixelColor(board_light_index[15],
+          main_menu_color_schemes[current_scheme+MAINMENU]);
+      }
+      else if (i == LIGHTS) {
+        max_print(string_lights, 0, 0);
+        max_print(string_out, 1, 0);
+        strip.setPixelColor(board_light_index[14],
+          main_menu_color_schemes[current_scheme+MAINMENU]);
+      }
+      else if (i == MEMORY) {
+        max_print(string_color, 0, 0);
+        max_print(string_memory, 1, 0);
+        strip.setPixelColor(board_light_index[13],
+          main_menu_color_schemes[current_scheme+MAINMENU]);
+      }
+      else if (i == PICKER) {
+        max_print(string_color, 0, 0);
+        max_print(string_picker, 1, 0);
+        strip.setPixelColor(board_light_index[12],
+          main_menu_color_schemes[current_scheme+MAINMENU]);
+      }
+
+      i++;
+      if (i>PICKER)
+        i=MAINMENU;
+      time = millis();
+    }
+  }
 }
 
 
 void loop() {
-  int i = 0;
 
-  // Test pushing buttons
-  LightsOut game = LightsOut();
-  game.current_board = 65535;
-  print_16_bits(game.current_board);
-  delay(2000);
-  for(i = 0; i<16; i++) {
-    print_board(game.push(i));
-    print_16_bits(game.current_board);
-    delay(2000);
-  }
-  if (game.has_won())
-    max_print(string_win);
 
-  delay(1000);
-  // Run a few games
-  game = LightsOut();
-  for(i=0; i<1; i++) {
-    max_print(string_level);
-    Serial.println(game.current_level);
-    delay(1000);
+  //int i = 0;
 
-    max_print(string_board);
-    print_16_bits(game.current_board);
-    update_board(game.current_board);
-    delay(10000);
+  //// Test pushing buttons
+  //LightsOut game = LightsOut();
+  //game.current_board = 65535;
+  //print_16_bits(game.current_board);
+  //delay(2000);
+  //for(i = 0; i<16; i++) {
+    //print_board(game.push(i));
+    //print_16_bits(game.current_board);
+    //delay(2000);
+  //}
+  //if (game.has_won())
+    //max_print(string_win);
 
-    max_print(string_solution);
-    print_16_bits(game.current_board_solution);
-    update_board(game.current_board_solution);
-    delay(10000);
+  //delay(1000);
+  //// Run a few games
+  //game = LightsOut();
+  //for(i=0; i<1; i++) {
+    //max_print(string_level);
+    //Serial.println(game.current_level);
+    //delay(1000);
 
-    max_print(string_moves);
-    Serial.println(game.required_moves);
-    delay(10000);
+    //max_print(string_board);
+    //print_16_bits(game.current_board);
+    //update_board(game.current_board);
+    //delay(10000);
 
-    if (game.has_won())
-      max_print(string_win);
+    //max_print(string_solution);
+    //print_16_bits(game.current_board_solution);
+    //update_board(game.current_board_solution);
+    //delay(10000);
 
-    delay(10000);
-    game.advance_level();
-  }
+    //max_print(string_moves);
+    //Serial.println(game.required_moves);
+    //delay(10000);
 
-  delay(999999);
+    //if (game.has_won())
+      //max_print(string_win);
+
+    //delay(10000);
+    //game.advance_level();
+  //}
+
+  //delay(999999);
 }
 
 // vim: ft=cpp
