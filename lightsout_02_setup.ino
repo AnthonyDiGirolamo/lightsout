@@ -256,16 +256,32 @@ class LightsOut {
     }
 };
 
-//uint16_t read_buttons() {
-  ////buttons1 = mcp.readGPIOAB();
-  //if (buttons1 != buttons2) {
-    //buttons3 = buttons2;
-    //buttons2 = buttons1;
-    //print_16_bits(buttons1);
-    //delay(40);
-  //}
-  //return buttons1;
-//}
+/* Return a button press 0-15
+ * If a button is being held, return which is being held + 16 */
+int read_buttons() {
+  int index = -1;
+  buttons1 = mcp.readGPIOAB();
+  if ((~buttons1) > 0) { // if there is a button being pressed
+    for (int i=0; i<16; i++) {
+      if ( ((~buttons1) >> i) & 1 == 1 ) {
+        index = i;
+        break;
+      }
+    }
+    if (buttons1 != buttons2) { // a different button from last time
+      buttons2 = buttons1;
+      button_timer = millis();
+      print_16_bits(buttons1);
+      delay(40); // to prevent button bouncing
+    }
+    else { // same button as last, check for long press
+      if (millis()-button_timer > 3000) {
+        index += 16;
+      }
+    }
+  }
+  return index;
+}
 
 void max_print(char* string, int col = -1, int row = -1) {
   char buffer[32];
