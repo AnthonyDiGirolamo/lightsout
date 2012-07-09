@@ -16,7 +16,8 @@ Adafruit_MCP23017 mcp;
 
 // Number Constants
 
-#define RANDOMSEED 31415926
+#define RANDOMSEED1 31415926 // pi
+#define RANDOMSEED2 62831852 // 2pi
 #define MENU_DELAY 2000
 
 // Strings

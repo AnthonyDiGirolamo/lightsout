@@ -72,8 +72,126 @@ void print_board(uint16_t board) {
   Serial.print(" |\n+------+\n");
 }
 
+class ColorPicker {
+  public:
+    char buffer[16];
+    uint8_t red, green, blue;
+    uint8_t rand_red, rand_green, rand_blue;
+    uint8_t button;
+    unsigned long timer;
+
+    ColorPicker() {
+      randomSeed(RANDOMSEED2);
+      set_control_colors();
+      generate_random_color();
+      reset_white();
+      update_color(Color(red, green. blue));
+    }
+
+    void set_control_colors() {
+      strip.setPixelColor(7, 0xFF0000);
+      strip.setPixelColor(3, 0x010000);
+      strip.setPixelColor(6, 0x00FF00);
+      strip.setPixelColor(2, 0x000100);
+      strip.setPixelColor(5, 0x0000FF);
+      strip.setPixelColor(1, 0x000001);
+      strip.setPixelColor(0, 0x010101);
+      strip.show();
+    }
+
+    void generate_random_color() {
+      timer = millis();
+      rand_red = (uint8_t) rand();
+      rand_green = (uint8_t) rand();
+      rand_blue = (uint8_t) rand();
+      strip.setPixelColor(4, Color(rand_red, rand_green, rand_blue));
+      strip.show();
+    }
+
+    void use_random_color() {
+      red = rand_red;
+      green = rand_green;
+      blue = rand_blue;
+    }
+
+    void reset_white() {
+      red = 1;
+      green = 1;
+      blue = 1;
+    }
+
+    void update_color() {
+      uint32_t c = Color(red, green, blue);
+      for (int i=15; i>7; i--) {
+        strip.setPixelColor(i, c);
+      }
+      strip.show();
+    }
+
+    void update_text() {
+      sprintf(buffer, "R%03uG%03uB%03u", red, green, blue);
+      max_print(buffer, 0, 0);
+      max_print(buffer[8], 1, 0);
+    }
+
+    void begin() {
+      while (1) {
+        button = read_buttons();
+        if (button >= 0) {
+          switch(button) {
+            case 7:
+              // more red
+              if (red < 255)
+                red++;
+              break;
+            case 3:
+              // less red
+              if (red > 0)
+                red--;
+              break;
+            case 6:
+              // more green
+              if (green < 255)
+                green++;
+              break;
+            case 2:
+              // less green
+              if (green > 0)
+                green--;
+              break;
+            case 5:
+              // more blue
+              if (blue < 255)
+                blue++;
+              break;
+            case 1:
+              // less blue
+              if (blue > 0)
+                blue--;
+              break;
+            case 4:
+              // use random
+              use_random_color();
+              break;
+            case 0:
+              // set white
+              reset_white();
+              break;
+          }
+          update_color();
+          update_text();
+        }
+
+        if (millis() - timer > 4000) {
+          generate_random_color();
+        }
+      }
+    }
+};
+
 class LightsOut {
   public:
+    char
     uint8_t current_level;
     uint8_t required_moves;
     uint8_t current_move_count;
@@ -81,7 +199,7 @@ class LightsOut {
     uint16_t current_board_solution;
 
     LightsOut() {
-      randomSeed(RANDOMSEED);
+      randomSeed(RANDOMSEED1);
       current_level = 0;
       advance_level();
     }
