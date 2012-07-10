@@ -165,7 +165,8 @@ class ColorPicker {
     }
 
     void update_text() {
-      sprintf(buffer, "R%03uG%03uB%03u", red, green, blue);
+      /* sprintf(buffer, "R%03uG%03uB%03u", red, green, blue); */
+      sprintf(buffer, "Picker   #%02X%02X%02X", red, green, blue);
       alpha_board.write_string(buffer, 0, 0);
       alpha_board.write_string(&buffer[8], 1, 0);
     }
