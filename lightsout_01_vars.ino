@@ -27,7 +27,7 @@ uint16_t buttons1, buttons2;
 
 // Strings
 
-char string_empty[]    PROGMEM = "        ";
+char string_empty[]    PROGMEM = "                ";
 char string_win[]      PROGMEM = "You Win ";
 char string_perfect[]  PROGMEM = "Perfect ";
 char string_level[]    PROGMEM = "Level   ";

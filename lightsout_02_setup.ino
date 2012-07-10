@@ -8,6 +8,7 @@ uint32_t Color(byte r, byte g, byte b) {
   c |= b;
   return c;
 }
+
 //Input a value 0 to 255 to get a color value.
 //The colours are a transition r - g -b - back to r
 uint32_t Wheel(byte WheelPos) {
@@ -21,6 +22,7 @@ uint32_t Wheel(byte WheelPos) {
    return Color(0, WheelPos * 3, 255 - WheelPos * 3);
   }
 }
+
 void colorWipe(uint32_t c, uint8_t wait) {
   int i;
 
@@ -30,17 +32,13 @@ void colorWipe(uint32_t c, uint8_t wait) {
       delay(wait);
   }
 }
-void max_print(char* string, int col = -1, int row = -1) {
+
+void max_print_progmem(char* string, uint8_t col = -1, uint8_t row = -1) {
   char buffer[32];
   strcpy_P(buffer, string);
-  if (col >= 0 && row >= 0) {
-    //Serial.println(buffer);
-    alpha_board.write_string(buffer, col, row);
-  }
-  else {
-    //Serial.println(buffer);
-    alpha_board.write_string(buffer, 0, 0);
-  }
+  alpha_board.write_string(buffer,
+      col>=0 ? col : 0,
+      row>=0 ? row : 0);
 }
 
 
@@ -77,27 +75,27 @@ void update_board(uint16_t number) {
   strip.show();
 }
 
-void print_4_bits(uint16_t n) {
-  char s[16];
-  sprintf(s, "%d%d%d%d",
-    (n & 0x08 ? 1 : 0), \
-    (n & 0x04 ? 1 : 0), \
-    (n & 0x02 ? 1 : 0), \
-    (n & 0x01 ? 1 : 0));
-  /* Serial.print(s); */
-}
+// void print_4_bits(uint16_t n) {
+//   char s[16];
+//   sprintf(s, "%d%d%d%d",
+//     (n & 0x08 ? 1 : 0), \
+//     (n & 0x04 ? 1 : 0), \
+//     (n & 0x02 ? 1 : 0), \
+//     (n & 0x01 ? 1 : 0));
+//   Serial.print(s);
+// }
 
-void print_board(uint16_t board) {
-  Serial.print("+------+\n| ");
-  print_4_bits( (board & 0xF000) >> 12 );
-  Serial.print(" |\n| ");
-  print_4_bits( (board &  0xF00) >> 8 );
-  Serial.print(" |\n| ");
-  print_4_bits( (board &   0xF0) >> 4 );
-  Serial.print(" |\n| ");
-  print_4_bits( (board &    0xF) );
-  Serial.print(" |\n+------+\n");
-}
+// void print_board(uint16_t board) {
+//   Serial.print("+------+\n| ");
+//   print_4_bits( (board & 0xF000) >> 12 );
+//   Serial.print(" |\n| ");
+//   print_4_bits( (board &  0xF00) >> 8 );
+//   Serial.print(" |\n| ");
+//   print_4_bits( (board &   0xF0) >> 4 );
+//   Serial.print(" |\n| ");
+//   print_4_bits( (board &    0xF) );
+//   Serial.print(" |\n+------+\n");
+// }
 
 class ColorPicker {
   public:
@@ -157,26 +155,27 @@ class ColorPicker {
     }
 
     void update_color() {
-      uint32_t c = Color(red, green, blue);
-      for (int i=15; i>7; i--) {
-        strip.setPixelColor(board_light_index[i], c);
+      if (!fading) {
+        uint32_t c = Color(red, green, blue);
+        for (int i=15; i>7; i--) {
+          strip.setPixelColor(board_light_index[i], c);
+        }
+        strip.show();
       }
-      strip.show();
     }
 
     void update_text() {
-      /* sprintf(buffer, "R%03uG%03uB%03u", red, green, blue); */
-      sprintf(buffer, "Picker   #%02X%02X%02X", red, green, blue);
-      alpha_board.write_string(buffer, 0, 0);
-      alpha_board.write_string(&buffer[8], 1, 0);
+      max_print_progmem(string_picker);
+      sprintf(buffer, " #%02X%02X%02X", red, green, blue);
+      // sprintf(buffer, "R%03uG%03uB%03u", red, green, blue);
+      alpha_board.write_string(buffer, 1, 0);
     }
 
     void toggle_fading() {
       fading = fading ? false : true;
       if (fading) {
         using_all_lights = true;
-        fade_i = 0;
-        fade_j = 0;
+        fade_i = 0; fade_j = 0;
         fade_timer = millis();
       }
       else {
@@ -384,12 +383,16 @@ int read_buttons() {
 
 void setup() {
   /* Serial.begin(9600); */
+
+  // Setup 16-segment display
   alpha_board.begin();
   alpha_board.set_global_brightness(1);
 
+  // Setup RGB Strip
   strip.begin();
   strip.show();
 
+  // Setup port expander
   mcp.begin();
   for (int i=0; i<16; i++) {
     mcp.pinMode(i, INPUT);
@@ -402,8 +405,8 @@ void setup() {
     //delay(1000);
   //}
 
-  //max_print(string_testing, 0, 0);
-  //max_print(string_testing, 1, 0);
+  //max_print_progmem(string_testing, 0, 0);
+  //max_print_progmem(string_testing, 1, 0);
   //colorWipe(Color(0, 0, 255), 50);
   //colorWipe(Color(0, 255, 0), 50);
   //colorWipe(Color(255, 0, 0), 50);
@@ -426,26 +429,26 @@ void main_menu() {
       colorWipe(main_menu_color_schemes[current_scheme], 0);
 
       if (i == MAINMENU) {
-        max_print(string_mainmenu, 0, 0);
-        max_print(string_empty, 1, 0);
+        max_print_progmem(string_mainmenu, 0, 0);
+        max_print_progmem(string_empty, 1, 0);
         strip.setPixelColor(board_light_index[15],
           main_menu_color_schemes[current_scheme+MAINMENU]);
       }
       else if (i == LIGHTS) {
-        max_print(string_lights, 0, 0);
-        max_print(string_out, 1, 0);
+        max_print_progmem(string_lights, 0, 0);
+        max_print_progmem(string_out, 1, 0);
         strip.setPixelColor(board_light_index[14],
           main_menu_color_schemes[current_scheme+MAINMENU]);
       }
       else if (i == MEMORY) {
-        max_print(string_color, 0, 0);
-        max_print(string_memory, 1, 0);
+        max_print_progmem(string_color, 0, 0);
+        max_print_progmem(string_memory, 1, 0);
         strip.setPixelColor(board_light_index[13],
           main_menu_color_schemes[current_scheme+MAINMENU]);
       }
       else if (i == PICKER) {
-        max_print(string_color, 0, 0);
-        max_print(string_picker, 1, 0);
+        max_print_progmem(string_color, 0, 0);
+        max_print_progmem(string_picker, 1, 0);
         strip.setPixelColor(board_light_index[12],
           main_menu_color_schemes[current_scheme+MAINMENU]);
       }
@@ -481,32 +484,32 @@ void loop() {
     //delay(2000);
   //}
   //if (game.has_won())
-    //max_print(string_win);
+    //max_print_progmem(string_win);
 
   //delay(1000);
   //// Run a few games
   //game = LightsOut();
   //for(i=0; i<1; i++) {
-    //max_print(string_level);
+    //max_print_progmem(string_level);
     //Serial.println(game.current_level);
     //delay(1000);
 
-    //max_print(string_board);
+    //max_print_progmem(string_board);
     //print_16_bits(game.current_board);
     //update_board(game.current_board);
     //delay(10000);
 
-    //max_print(string_solution);
+    //max_print_progmem(string_solution);
     //print_16_bits(game.current_board_solution);
     //update_board(game.current_board_solution);
     //delay(10000);
 
-    //max_print(string_moves);
+    //max_print_progmem(string_moves);
     //Serial.println(game.required_moves);
     //delay(10000);
 
     //if (game.has_won())
-      //max_print(string_win);
+      //max_print_progmem(string_win);
 
     //delay(10000);
     //game.advance_level();
