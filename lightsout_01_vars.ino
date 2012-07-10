@@ -14,11 +14,6 @@ MAX6954 alpha_board = MAX6954(DATAOUT, DATAIN, CLK, CS1, CS2);
 
 Adafruit_MCP23017 mcp;
 
-// Buttons
-
-unsigned long button_timer;
-uint16_t buttons1, buttons2;
-
 // Number Constants
 
 #define RANDOMSEED1 31415926ul

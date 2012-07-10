@@ -99,6 +99,9 @@ void update_board(uint16_t number) {
 // Return a button press 0-15
 // If a button is being held, return button value + 16
 int read_buttons() {
+  static unsigned long button_timer;
+  static uint16_t buttons1, buttons2;
+
   int index = -1;
   buttons1 = mcp.readGPIOAB();
   //print_16_bits(buttons1);

@@ -13,7 +13,7 @@ class ColorPicker {
     ColorPicker() {
       using_all_lights = false;
       fading = false;
-      randomSeed(RANDOMSEED2);
+      randomSeed(millis()+(unsigned long) analogRead(3));
       set_control_colors();
       generate_random_color();
       reset_white();
