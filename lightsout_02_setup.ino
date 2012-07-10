@@ -1,6 +1,5 @@
 // Create a 24 bit color value from R,G,B
-uint32_t Color(byte r, byte g, byte b)
-{
+uint32_t Color(byte r, byte g, byte b) {
   uint32_t c;
   c = r;
   c <<= 8;
@@ -8,6 +7,19 @@ uint32_t Color(byte r, byte g, byte b)
   c <<= 8;
   c |= b;
   return c;
+}
+//Input a value 0 to 255 to get a color value.
+//The colours are a transition r - g -b - back to r
+uint32_t Wheel(byte WheelPos) {
+  if (WheelPos < 85) {
+   return Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+  } else if (WheelPos < 170) {
+   WheelPos -= 85;
+   return Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  } else {
+   WheelPos -= 170;
+   return Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
 }
 void colorWipe(uint32_t c, uint8_t wait) {
   int i;
@@ -51,7 +63,7 @@ void print_16_bits(uint16_t n) {
     (n & 0x04 ? 1 : 0), \
     (n & 0x02 ? 1 : 0), \
     (n & 0x01 ? 1 : 0));
-  Serial.println(s);
+  /* Serial.println(s); */
   alpha_board.write_string(s, 0, 0);
   alpha_board.write_string(&s[8], 1, 0);
 }
@@ -72,7 +84,7 @@ void print_4_bits(uint16_t n) {
     (n & 0x04 ? 1 : 0), \
     (n & 0x02 ? 1 : 0), \
     (n & 0x01 ? 1 : 0));
-  Serial.print(s);
+  /* Serial.print(s); */
 }
 
 void print_board(uint16_t board) {
@@ -90,12 +102,18 @@ void print_board(uint16_t board) {
 class ColorPicker {
   public:
     char buffer[16];
+    bool using_all_lights;
+    bool fading;
     uint8_t red, green, blue;
     uint8_t rand_red, rand_green, rand_blue;
     uint8_t button;
     unsigned long timer;
+    unsigned long fade_timer;
+    int fade_i, fade_j;
 
     ColorPicker() {
+      using_all_lights = false;
+      fading = false;
       randomSeed(RANDOMSEED2);
       set_control_colors();
       generate_random_color();
@@ -103,14 +121,16 @@ class ColorPicker {
     }
 
     void set_control_colors() {
-      strip.setPixelColor(board_light_index[7], 0xFF0000);
-      strip.setPixelColor(board_light_index[3], 0x010000);
-      strip.setPixelColor(board_light_index[6], 0x00FF00);
-      strip.setPixelColor(board_light_index[2], 0x000100);
-      strip.setPixelColor(board_light_index[5], 0x0000FF);
-      strip.setPixelColor(board_light_index[1], 0x000001);
-      strip.setPixelColor(board_light_index[0], 0x010101);
-      strip.show();
+      if (!using_all_lights) {
+        strip.setPixelColor(board_light_index[7], 0xFF0000);
+        strip.setPixelColor(board_light_index[3], 0x010000);
+        strip.setPixelColor(board_light_index[6], 0x00FF00);
+        strip.setPixelColor(board_light_index[2], 0x000100);
+        strip.setPixelColor(board_light_index[5], 0x0000FF);
+        strip.setPixelColor(board_light_index[1], 0x000001);
+        strip.setPixelColor(board_light_index[0], 0x010101);
+        strip.show();
+      }
     }
 
     void generate_random_color() {
@@ -118,8 +138,10 @@ class ColorPicker {
       rand_red = (uint8_t) rand();
       rand_green = (uint8_t) rand();
       rand_blue = (uint8_t) rand();
-      strip.setPixelColor(board_light_index[4], Color(rand_red, rand_green, rand_blue));
-      strip.show();
+      if (!using_all_lights) {
+        strip.setPixelColor(board_light_index[4], Color(rand_red, rand_green, rand_blue));
+        strip.show();
+      }
     }
 
     void use_random_color() {
@@ -146,6 +168,25 @@ class ColorPicker {
       sprintf(buffer, "R%03uG%03uB%03u", red, green, blue);
       alpha_board.write_string(buffer, 0, 0);
       alpha_board.write_string(&buffer[8], 1, 0);
+    }
+
+    void toggle_fading() {
+      fading = fading ? false : true;
+      if (fading) {
+        using_all_lights = true;
+        fade_i = 0;
+        fade_j = 0;
+        fade_timer = millis();
+      }
+      else {
+        using_all_lights = false;
+        set_control_colors();
+      }
+    }
+
+    void toggle_all_lights() {
+      using_all_lights = using_all_lights ? false : true;
+      set_control_colors();
     }
 
     void begin() {
@@ -197,8 +238,17 @@ class ColorPicker {
               break;
             case 0:
             case 16:
-              // set white
-              reset_white();
+              toggle_fading();
+              break;
+            case 15:
+            case 14:
+            case 13:
+            case 12:
+            case 11:
+            case 10:
+            case 9:
+            case 8:
+              toggle_all_lights();
               break;
           }
           update_color();
@@ -209,10 +259,26 @@ class ColorPicker {
             delay(250);
         }
 
-        if (millis() - timer > 4000) {
+        if (millis()-timer > 4000) {
           generate_random_color();
         }
-      }
+
+        if (fading && (millis()-fade_timer > 20)) {
+          fade_timer=millis();
+          for (fade_i=0; fade_i < strip.numPixels(); fade_i++) {
+            // tricky math! we use each pixel as a fraction of the full 96-color wheel
+            // (thats the i / strip.numPixels() part)
+            // Then add in j which makes the colors go around per pixel
+            // the % 96 is to make the wheel cycle around
+            strip.setPixelColor(fade_i, Wheel( ((fade_i * 256 / strip.numPixels()) + fade_j) % 256) );
+          }
+          strip.show();   // write all the pixels out
+          fade_j++;
+          if (fade_j > 1280)
+            fade_j = 0;
+        }
+
+      } // end while
     }
 };
 
@@ -314,7 +380,7 @@ int read_buttons() {
 
 
 void setup() {
-  Serial.begin(9600);
+  /* Serial.begin(9600); */
   alpha_board.begin();
   alpha_board.set_global_brightness(1);
 
@@ -389,14 +455,14 @@ void main_menu() {
   }
 }
 
-int button;
-char s[32];
+/* int button; */
+/* char s[32]; */
 
 void loop() {
   // Button Test
-  //button = read_buttons();
-  //sprintf(s, "%d        ", button);
-  //alpha_board.write_string(s, 0, 0);
+  /* button = read_buttons(); */
+  /* sprintf(s, "%d        ", button); */
+  /* alpha_board.write_string(s, 0, 0); */
 
 
   //int i = 0;
