@@ -186,8 +186,10 @@ class ColorPicker {
     }
 
     void toggle_all_lights() {
-      using_all_lights = using_all_lights ? false : true;
-      set_control_colors();
+      if (!fading) {
+        using_all_lights = using_all_lights ? false : true;
+        set_control_colors();
+      }
     }
 
     void begin() {
