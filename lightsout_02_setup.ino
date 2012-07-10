@@ -41,7 +41,6 @@ void max_print_progmem(char* string, uint8_t col = -1, uint8_t row = -1) {
       row>=0 ? row : 0);
 }
 
-
 void print_16_bits(uint16_t n) {
   char s[32];
   sprintf(s, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
@@ -350,8 +349,8 @@ class LightsOut {
     }
 };
 
-/* Return a button press 0-15
- * If a button is being held, return which is being held + 16 */
+// Return a button press 0-15
+// If a button is being held, return button value + 16
 int read_buttons() {
   int index = -1;
   buttons1 = mcp.readGPIOAB();
@@ -379,7 +378,6 @@ int read_buttons() {
   }
   return index;
 }
-
 
 void setup() {
   /* Serial.begin(9600); */
@@ -461,16 +459,7 @@ void main_menu() {
   }
 }
 
-/* int button; */
-/* char s[32]; */
-
 void loop() {
-  // Button Test
-  /* button = read_buttons(); */
-  /* sprintf(s, "%d        ", button); */
-  /* alpha_board.write_string(s, 0, 0); */
-
-
   //int i = 0;
 
   //// Test pushing buttons
