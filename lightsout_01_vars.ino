@@ -57,9 +57,9 @@ prog_uint32_t main_menu_color_schemes[] = {
 
 prog_uint32_t lights_out_color_schemes[] = {
   0xFF9000, // on
-  0x0000FF, // off
+  0x010101, // off
   0xFFFFFF, // on
-  0x000000, // off
+  0x010101, // off
 };
 uint8_t current_scheme = 0; // index of on color in color_schemes array
 

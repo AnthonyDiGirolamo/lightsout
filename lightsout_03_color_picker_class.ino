@@ -1,6 +1,6 @@
 class ColorPicker {
   public:
-    char buffer[16];
+    char buffer[20];
     bool using_all_lights;
     bool fading;
     uint8_t red, green, blue;

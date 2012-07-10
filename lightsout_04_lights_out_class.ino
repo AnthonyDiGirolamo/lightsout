@@ -1,10 +1,12 @@
 class LightsOut {
   public:
+    char buffer[20];
     uint8_t current_level;
     uint8_t required_moves;
     uint8_t current_move_count;
     uint16_t current_board;
     uint16_t current_board_solution;
+    uint8_t button;
 
     LightsOut() {
       randomSeed(RANDOMSEED1);
@@ -21,7 +23,7 @@ class LightsOut {
       current_board_solution = find_solution();
       required_moves = count_ones(current_board_solution);
     }
-    uint8_t has_won() {
+    bool has_won() {
       return (current_board == 0);
     }
     uint16_t toggle(uint8_t space) {
@@ -61,6 +63,51 @@ class LightsOut {
           //c += v & 1;
       //}
       return c;
+    }
+    void update_board() {
+      uint16_t lit = 0;
+      for(int i=15; i>=0; i--) {
+        lit = (current_board & space_masks[i]) >> i;
+        strip.setPixelColor(board_light_index[i], (lit ? lights_out_color_schemes[current_scheme] : lights_out_color_schemes[current_scheme+1]));
+      }
+      strip.show();
+    }
+    void update_text() {
+      max_print_progmem(string_level, 0, 0);
+      sprintf(buffer, "%3u", current_level);
+      alpha_board.write_string(buffer, 0, 5);
+      sprintf(buffer, "   %2u/%2u", current_move_count, required_moves);
+      alpha_board.write_string(buffer, 1, 0);
+    }
+    void begin() {
+      while (1) {
+        button = read_buttons();
+        if (button >= 0) { // there is a button press
+          if (button >= 16) {
+            // long hold, pause menu
+          }
+          else {
+            // normal press, update board
+            current_move_count++;
+            push(button);
+            update_board();
+            update_text();
+
+            if (has_won()) {
+              max_print_progmem(string_win, 0, 0);
+              delay(5000);
+              advance_level();
+              update_board();
+              update_text();
+            }
+          }
+
+          delay(1000); // avoid toggling too fast
+        }
+
+        /* if (millis()-timer > 4000) { */
+        /* } */
+      } // end while
     }
 };
 

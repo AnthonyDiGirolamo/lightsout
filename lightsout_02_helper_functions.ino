@@ -65,15 +65,6 @@ void print_16_bits(uint16_t n) {
   alpha_board.write_string(&s[8], 1, 0);
 }
 
-void update_board(uint16_t number) {
-  uint16_t lit = 0;
-  for(int i=15; i>=0; i--) {
-    lit = (number & space_masks[i]) >> i;
-    strip.setPixelColor(board_light_index[i], (lit ? lights_out_color_schemes[current_scheme] : lights_out_color_schemes[current_scheme+1]));
-  }
-  strip.show();
-}
-
 // void print_4_bits(uint16_t n) {
 //   char s[16];
 //   sprintf(s, "%d%d%d%d",
