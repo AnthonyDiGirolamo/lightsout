@@ -18,8 +18,21 @@ void colorWipe(uint32_t c, uint8_t wait) {
       delay(wait);
   }
 }
+void max_print(char* string, int col = -1, int row = -1) {
+  char buffer[32];
+  strcpy_P(buffer, string);
+  if (col >= 0 && row >= 0) {
+    //Serial.println(buffer);
+    alpha_board.write_string(buffer, col, row);
+  }
+  else {
+    //Serial.println(buffer);
+    alpha_board.write_string(buffer, 0, 0);
+  }
+}
 
-void print_16_bits(uint16_t number) {
+
+void print_16_bits(uint16_t n) {
   char s[32];
   sprintf(s, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
     (n & 0x08000 ? 1 : 0), \
@@ -39,9 +52,11 @@ void print_16_bits(uint16_t number) {
     (n & 0x02 ? 1 : 0), \
     (n & 0x01 ? 1 : 0));
   Serial.println(s);
+  alpha_board.write_string(s, 0, 0);
+  alpha_board.write_string(&s[8], 1, 0);
 }
 
-void update_board(uint16_t) {
+void update_board(uint16_t number) {
   uint16_t lit = 0;
   for(int i=15; i>=0; i--) {
     lit = (number & space_masks[i]) >> i;
@@ -85,17 +100,16 @@ class ColorPicker {
       set_control_colors();
       generate_random_color();
       reset_white();
-      update_color(Color(red, green. blue));
     }
 
     void set_control_colors() {
-      strip.setPixelColor(7, 0xFF0000);
-      strip.setPixelColor(3, 0x010000);
-      strip.setPixelColor(6, 0x00FF00);
-      strip.setPixelColor(2, 0x000100);
-      strip.setPixelColor(5, 0x0000FF);
-      strip.setPixelColor(1, 0x000001);
-      strip.setPixelColor(0, 0x010101);
+      strip.setPixelColor(board_light_index[7], 0xFF0000);
+      strip.setPixelColor(board_light_index[3], 0x010000);
+      strip.setPixelColor(board_light_index[6], 0x00FF00);
+      strip.setPixelColor(board_light_index[2], 0x000100);
+      strip.setPixelColor(board_light_index[5], 0x0000FF);
+      strip.setPixelColor(board_light_index[1], 0x000001);
+      strip.setPixelColor(board_light_index[0], 0x010101);
       strip.show();
     }
 
@@ -104,7 +118,7 @@ class ColorPicker {
       rand_red = (uint8_t) rand();
       rand_green = (uint8_t) rand();
       rand_blue = (uint8_t) rand();
-      strip.setPixelColor(4, Color(rand_red, rand_green, rand_blue));
+      strip.setPixelColor(board_light_index[4], Color(rand_red, rand_green, rand_blue));
       strip.show();
     }
 
@@ -123,15 +137,15 @@ class ColorPicker {
     void update_color() {
       uint32_t c = Color(red, green, blue);
       for (int i=15; i>7; i--) {
-        strip.setPixelColor(i, c);
+        strip.setPixelColor(board_light_index[i], c);
       }
       strip.show();
     }
 
     void update_text() {
       sprintf(buffer, "R%03uG%03uB%03u", red, green, blue);
-      max_print(buffer, 0, 0);
-      max_print(buffer[8], 1, 0);
+      alpha_board.write_string(buffer, 0, 0);
+      alpha_board.write_string(&buffer[8], 1, 0);
     }
 
     void begin() {
@@ -140,46 +154,59 @@ class ColorPicker {
         if (button >= 0) {
           switch(button) {
             case 7:
+            case 23:
               // more red
               if (red < 255)
                 red++;
               break;
             case 3:
+            case 19:
               // less red
               if (red > 0)
                 red--;
               break;
             case 6:
+            case 22:
               // more green
               if (green < 255)
                 green++;
               break;
             case 2:
+            case 18:
               // less green
               if (green > 0)
                 green--;
               break;
             case 5:
+            case 21:
               // more blue
               if (blue < 255)
                 blue++;
               break;
             case 1:
+            case 17:
               // less blue
               if (blue > 0)
                 blue--;
               break;
             case 4:
+            case 20:
               // use random
               use_random_color();
+              generate_random_color();
               break;
             case 0:
+            case 16:
               // set white
               reset_white();
               break;
           }
           update_color();
           update_text();
+          if (button == 4 || button == 20)
+            delay(1000);
+          else
+            delay(250);
         }
 
         if (millis() - timer > 4000) {
@@ -191,7 +218,6 @@ class ColorPicker {
 
 class LightsOut {
   public:
-    char
     uint8_t current_level;
     uint8_t required_moves;
     uint8_t current_move_count;
@@ -261,6 +287,7 @@ class LightsOut {
 int read_buttons() {
   int index = -1;
   buttons1 = mcp.readGPIOAB();
+  //print_16_bits(buttons1);
   if ((~buttons1) > 0) { // if there is a button being pressed
     for (int i=0; i<16; i++) {
       if ( ((~buttons1) >> i) & 1 == 1 ) {
@@ -271,39 +298,34 @@ int read_buttons() {
     if (buttons1 != buttons2) { // a different button from last time
       buttons2 = buttons1;
       button_timer = millis();
-      print_16_bits(buttons1);
       delay(40); // to prevent button bouncing
     }
     else { // same button as last, check for long press
-      if (millis()-button_timer > 3000) {
+      if (millis()-button_timer > 2000) {
         index += 16;
       }
     }
   }
-  return index;
-}
-
-void max_print(char* string, int col = -1, int row = -1) {
-  char buffer[32];
-  strcpy_P(buffer, string);
-  if (col >= 0 && row >= 0) {
-    //Serial.println(buffer);
-    alpha_board.write_string(buffer, col, row);
-  }
   else {
-    //Serial.println(buffer);
-    alpha_board.write_string(buffer, 0, 0);
+    button_timer = millis();
   }
+  return index;
 }
 
 
 void setup() {
   Serial.begin(9600);
   alpha_board.begin();
-  alpha_board.set_global_brightness(5);
+  alpha_board.set_global_brightness(1);
 
   strip.begin();
   strip.show();
+
+  mcp.begin();
+  for (int i=0; i<16; i++) {
+    mcp.pinMode(i, INPUT);
+    mcp.pullUp(i, HIGH);  // turn on a 100K pullup internally
+  }
 
   //for(int i=0; i<16; i++){
     //strip.setPixelColor(board_light_index[i], Color(255,0,0));
@@ -311,13 +333,15 @@ void setup() {
     //delay(1000);
   //}
 
-  max_print(string_testing, 0, 0);
-  max_print(string_testing, 1, 0);
-  colorWipe(Color(0, 0, 255), 50);
-  colorWipe(Color(0, 255, 0), 50);
-  colorWipe(Color(255, 0, 0), 50);
-  colorWipe(Color(255, 255, 255), 50);
+  //max_print(string_testing, 0, 0);
+  //max_print(string_testing, 1, 0);
+  //colorWipe(Color(0, 0, 255), 50);
+  //colorWipe(Color(0, 255, 0), 50);
+  //colorWipe(Color(255, 0, 0), 50);
+  //colorWipe(Color(255, 255, 255), 50);
 
+  ColorPicker cp = ColorPicker();
+  cp.begin();
 }
 
 void main_menu() {
@@ -365,8 +389,14 @@ void main_menu() {
   }
 }
 
+int button;
+char s[32];
 
 void loop() {
+  // Button Test
+  //button = read_buttons();
+  //sprintf(s, "%d        ", button);
+  //alpha_board.write_string(s, 0, 0);
 
 
   //int i = 0;

@@ -17,7 +17,7 @@ Adafruit_MCP23017 mcp;
 // Buttons
 
 unsigned long button_timer;
-uint16_t button1, button2;
+uint16_t buttons1, buttons2;
 
 // Number Constants
 
@@ -42,7 +42,7 @@ char string_lights[]   PROGMEM = "Lights  ";
 char string_out[]      PROGMEM = "Out     ";
 char string_color[]    PROGMEM = "Color   ";
 char string_memory[]   PROGMEM = "Memory  ";
-char string_chooser[]  PROGMEM = "Picker  ";
+char string_picker[]   PROGMEM = "Picker  ";
 
 #define MAINMENU 0
 #define LIGHTS 1
@@ -58,14 +58,14 @@ prog_uint32_t main_menu_color_schemes[] = {
   0x00FF00, // item 2
   0x0000FF, // item 3
   0xFF9000, // item 4
-}
+};
 
 prog_uint32_t lights_out_color_schemes[] = {
   0xFF9000, // on
   0x0000FF, // off
   0xFFFFFF, // on
   0x000000, // off
-}
+};
 uint8_t current_scheme = 0; // index of on color in color_schemes array
 
 // Lookup Tables
