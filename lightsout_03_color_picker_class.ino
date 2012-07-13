@@ -66,8 +66,8 @@ class ColorPicker {
     }
 
     void update_text() {
-      max_print_progmem(string_picker);
-      sprintf(buffer, " #%02X%02X%02X", red, green, blue);
+      max_print_progmem(string_picker, 0, 0);
+      sprintf(buffer, "0x%02X%02X%02X", red, green, blue);
       // sprintf(buffer, "R%03uG%03uB%03u", red, green, blue);
       alpha_board.write_string(buffer, 1, 0);
     }
@@ -156,7 +156,8 @@ class ColorPicker {
           }
           update_color();
           update_text();
-          if (button == 4 || button == 20)
+
+          if (button == 16 || button == 0 || button == 4 || button == 20)
             delay(1000);
           else
             delay(250);
@@ -166,7 +167,7 @@ class ColorPicker {
           generate_random_color();
         }
 
-        if (fading && (millis()-fade_timer > 20)) {
+        if (fading /*&& (millis()-fade_timer > 5)*/) {
           fade_timer=millis();
           for (fade_i=0; fade_i < strip.numPixels(); fade_i++) {
             // tricky math! we use each pixel as a fraction of the full 96-color wheel

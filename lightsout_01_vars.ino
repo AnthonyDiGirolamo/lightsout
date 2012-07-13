@@ -37,7 +37,7 @@ char string_lights[]   PROGMEM = "Lights  ";
 char string_out[]      PROGMEM = "Out     ";
 char string_color[]    PROGMEM = "Color   ";
 char string_memory[]   PROGMEM = "Memory  ";
-char string_picker[]   PROGMEM = "Picker  ";
+char string_picker[]   PROGMEM = "Rainbow*";
 
 #define MAINMENU 0
 #define LIGHTS 1
