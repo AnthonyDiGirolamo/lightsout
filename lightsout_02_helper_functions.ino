@@ -121,4 +121,16 @@ int read_buttons(uint8_t skip_delay = 0) {
   return index;
 }
 
+void print_time(unsigned long start, unsigned long end, int row = 0, int col = 0) {
+  char b[8];
+  unsigned long t;
+  t = ((end - start) / 1000);
+  word h = t / 3600;
+  byte m = (t / 60) % 60;
+  byte s = t % 60;
+  /* sprintf(b, "%02u:%02u:%02u:%u", h, m, s, ((end-start)/100)%10); */
+  sprintf(b, "%02u.%02u", m, s);
+  alpha_board.write_string(b, row, col);
+}
+
 // vim: ft=cpp

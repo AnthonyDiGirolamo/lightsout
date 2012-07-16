@@ -22,21 +22,28 @@ Adafruit_MCP23017 mcp;
 // Strings
 
 char string_empty[]    PROGMEM = "                ";
-char string_win[]      PROGMEM = "You Win ";
-char string_perfect[]  PROGMEM = "Perfect ";
-char string_level[]    PROGMEM = "Level   ";
-char string_board[]    PROGMEM = "Board   ";
-char string_solution[] PROGMEM = "Solution";
-char string_moves[]    PROGMEM = "Moves   ";
-char string_testing[]  PROGMEM = "TEST.TEST";
 
 // Main Menu
 char string_mainmenu[] PROGMEM = "Main.Menu";
 char string_lights[]   PROGMEM = "Lights  ";
 char string_out[]      PROGMEM = "Out     ";
 char string_color[]    PROGMEM = "Color   ";
-char string_memory[]   PROGMEM = "Memory  ";
 char string_picker[]   PROGMEM = "Chooser ";
+
+// Lights Out
+char string_paused[]   PROGMEM = "Paused  ";
+char string_win[]      PROGMEM = "You Win ";
+char string_perfect[]  PROGMEM = "Perfect ";
+char string_level[]    PROGMEM = "Level   ";
+char string_board[]    PROGMEM = "Board   ";
+char string_solution[] PROGMEM = "Solution";
+char string_restart[]  PROGMEM = "Restart ";
+char string_next[]     PROGMEM = "Next    ";
+char string_prev[]     PROGMEM = "Previous";
+char string_moves[]    PROGMEM = "Moves   ";
+char string_testing[]  PROGMEM = "TEST.TEST";
+
+// Color Chooser
 char string_fade[]     PROGMEM = "Rainbow ";
 char string_full[]     PROGMEM = "Full    ";
 char string_half[]     PROGMEM = "Half    ";
@@ -58,11 +65,19 @@ prog_uint32_t main_menu_color_schemes[] = {
   0x00FF00, // item 2
 };
 
+prog_uint32_t main_menu_color_schemes_dim[] = {
+  0x040404, // off
+  0xFF9000, // item 4
+  0x000080, // item 3
+  0x800000, // item 1
+  0x008000, // item 2
+};
+
 prog_uint32_t lights_out_color_schemes[] = {
   0xFF9000, // on
-  0x010101, // off
-  0xFFFFFF, // on
-  0x010101, // off
+  0x040404, // off
+  0x000080, // on
+  0x040404, // off
 };
 uint8_t current_scheme = 0; // index of on color in color_schemes array
 

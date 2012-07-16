@@ -8,6 +8,7 @@ class LightsOut {
     uint16_t current_board_reset;
     uint16_t current_board_solution;
     int button;
+    unsigned long level_start_time;
 
     LightsOut() {
       randomSeed(RANDOMSEED1);
@@ -21,6 +22,7 @@ class LightsOut {
     void reset_board() {
       current_move_count = 0;
       current_board = current_board_reset;
+      level_start_time = millis();
     }
     void advance_level() {
       randomize_board();
@@ -28,6 +30,7 @@ class LightsOut {
       current_move_count = 0;
       current_board_solution = find_solution();
       required_moves = count_ones(current_board_solution);
+      level_start_time = millis();
     }
     bool has_won() {
       return (current_board == 0);
@@ -71,6 +74,14 @@ class LightsOut {
       //}
       return c;
     }
+    void display_solution() {
+      uint16_t lit = 0;
+      for(int i=15; i>=0; i--) {
+        lit = (current_board_solution & space_masks[i]) >> i;
+        strip.setPixelColor(board_light_index[i], (lit ? lights_out_color_schemes[current_scheme+2] : lights_out_color_schemes[current_scheme+3]));
+      }
+      strip.show();
+    }
     void update_board() {
       uint16_t lit = 0;
       for(int i=15; i>=0; i--) {
@@ -80,24 +91,109 @@ class LightsOut {
       strip.show();
     }
     void update_text() {
-      max_print_progmem(string_level, 0, 0);
-      sprintf(buffer, "%2u", current_level);
-      /* sprintf(buffer, "L%2u %2u", current_level, button); */
-      alpha_board.write_string(buffer, 0, 5);
-      sprintf(buffer, "  %3u/%2u", current_move_count, required_moves);
-      alpha_board.write_string(buffer, 1, 0);
+      /* max_print_progmem(string_level, 0, 0); */
+      /* sprintf(buffer, "%02u", current_level); */
+      /* alpha_board.write_string(buffer, 0, 6); */
+
+      sprintf(buffer, "L%02u ", current_level);
+      alpha_board.write_string(buffer, 0, 0);
+
+      print_time(level_start_time, millis(), 0, 4);
+
+      max_print_progmem(string_empty, 1, 0);
+      sprintf(buffer, "  %3u/%02u", current_move_count, required_moves);
+      alpha_board.write_string(buffer, 1, 2);
     }
+
+    void pause() {
+      // TODO reset current moves and board to before the long hold
+
+      int i = 1;
+      uint8_t done = 0;
+      unsigned long time = millis();
+
+      max_print_progmem(string_paused, 0, 0);
+      max_print_progmem(string_empty, 1, 0);
+      colorWipe(main_menu_color_schemes[current_scheme], 0);
+      delay(MENU_DELAY);
+
+      while (!done) {
+        // Display Menu Options
+        if ((millis()-time) > MENU_DELAY) {
+          time = millis();
+
+          // Display Help Text
+          if (i == 1) {
+            max_print_progmem(string_restart, 0, 0);
+            max_print_progmem(string_empty, 1, 0);
+          }
+          else if (i == 2) {
+            max_print_progmem(string_solution, 0, 0);
+            max_print_progmem(string_empty, 1, 0);
+          }
+          else if (i == 3) {
+            max_print_progmem(string_next, 0, 0);
+            max_print_progmem(string_level, 1, 0);
+          }
+          else if (i == 4) {
+            max_print_progmem(string_prev, 0, 0);
+            max_print_progmem(string_level, 1, 0);
+          }
+
+          // Set Dim Colors
+          for (int x=0; x<4; x++)
+            strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
+
+          // Highlight Current Menu Option
+          strip.setPixelColor(board_light_index[16-i], main_menu_color_schemes[current_scheme+i]);
+          strip.show();
+
+          i++;
+          if (i>4)
+            i=1;
+        }
+
+        // Read Buttons
+        button = read_buttons();
+        delay(250);
+
+        if (button >= 0) {
+          if (button == 15) {
+            reset_board();
+            done = 1;
+          }
+          else if (button == 14) {
+            max_print_progmem(string_solution, 0, 0);
+            max_print_progmem(string_empty, 1, 0);
+            display_solution();
+            button = -1;
+            while (button>31 || button<0)
+              button = read_buttons();
+            done =1;
+          }
+          else if (button == 13) {
+            advance_level();
+            done =1;
+          }
+          else if (button == 12) {
+            done =1;
+          }
+        }
+
+      }
+    }
+
     void begin() {
       update_board();
       update_text();
-
       delay(1000);
+
       while (1) {
         button = read_buttons();
         if (button >= 0) { // there is a button press
           if (button <= 31 && button >= 16) {
             // long hold, pause menu
-            reset_board();
+            pause();
             update_board();
             update_text();
             delay(500);
@@ -111,7 +207,8 @@ class LightsOut {
 
             if (has_won()) {
               max_print_progmem(string_win, 0, 0);
-              delay(5000);
+              delay(2000);
+
               advance_level();
               update_board();
               update_text();
@@ -119,6 +216,7 @@ class LightsOut {
           }
         }
 
+        update_text();
         /* if (millis()-timer > 4000) { */
         /* } */
       } // end while
