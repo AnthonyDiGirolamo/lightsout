@@ -22,12 +22,12 @@ class ColorPicker {
     void set_control_colors() {
       if (!using_all_lights) {
         strip.setPixelColor(board_light_index[7], 0xFF0000);
-        strip.setPixelColor(board_light_index[3], 0x010000);
+        strip.setPixelColor(board_light_index[3], 0x040000);
         strip.setPixelColor(board_light_index[6], 0x00FF00);
-        strip.setPixelColor(board_light_index[2], 0x000100);
+        strip.setPixelColor(board_light_index[2], 0x000400);
         strip.setPixelColor(board_light_index[5], 0x0000FF);
-        strip.setPixelColor(board_light_index[1], 0x000001);
-        strip.setPixelColor(board_light_index[0], 0x010101);
+        strip.setPixelColor(board_light_index[1], 0x000004);
+        strip.setPixelColor(board_light_index[0], 0xFF9000);
         strip.show();
       }
     }
@@ -99,6 +99,7 @@ class ColorPicker {
     }
 
     void begin() {
+      delay(1000);
       while (1) {
         if (fading)
           button = read_buttons(1);
@@ -169,7 +170,7 @@ class ColorPicker {
 
           // extra delay to slow down fast presses
           if (button == 16 || button == 0 || button == 4 || button == 20)
-            delay(1000);
+            delay(100);
           else
             delay(100);
         }

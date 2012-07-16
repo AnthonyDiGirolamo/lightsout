@@ -5,8 +5,9 @@ class LightsOut {
     uint8_t required_moves;
     uint8_t current_move_count;
     uint16_t current_board;
+    uint16_t current_board_reset;
     uint16_t current_board_solution;
-    uint8_t button;
+    int button;
 
     LightsOut() {
       randomSeed(RANDOMSEED1);
@@ -15,6 +16,11 @@ class LightsOut {
     }
     void randomize_board() {
       current_board = (uint16_t) rand();
+      current_board_reset = current_board;
+    }
+    void reset_board() {
+      current_move_count = 0;
+      current_board = current_board_reset;
     }
     void advance_level() {
       randomize_board();
@@ -31,6 +37,7 @@ class LightsOut {
       return current_board;
     }
     uint16_t push(uint8_t space) {
+      current_move_count++;
       current_board ^= space_masks[space];
       current_board ^= space_masks[neighbors[space][0]];
       current_board ^= space_masks[neighbors[space][1]];
@@ -74,22 +81,31 @@ class LightsOut {
     }
     void update_text() {
       max_print_progmem(string_level, 0, 0);
-      sprintf(buffer, "%3u", current_level);
+      sprintf(buffer, "%2u", current_level);
+      /* sprintf(buffer, "L%2u %2u", current_level, button); */
       alpha_board.write_string(buffer, 0, 5);
-      sprintf(buffer, "   %2u/%2u", current_move_count, required_moves);
+      sprintf(buffer, "  %3u/%2u", current_move_count, required_moves);
       alpha_board.write_string(buffer, 1, 0);
     }
     void begin() {
+      update_board();
+      update_text();
+
+      delay(1000);
       while (1) {
         button = read_buttons();
         if (button >= 0) { // there is a button press
-          if (button >= 16) {
+          if (button <= 31 && button >= 16) {
             // long hold, pause menu
+            reset_board();
+            update_board();
+            update_text();
+            delay(500);
           }
-          else {
+          else if (button >= 0 && button <= 15) {
             // normal press, update board
-            current_move_count++;
             push(button);
+            delay(250); // avoid toggling too fast
             update_board();
             update_text();
 
@@ -101,8 +117,6 @@ class LightsOut {
               update_text();
             }
           }
-
-          delay(1000); // avoid toggling too fast
         }
 
         /* if (millis()-timer > 4000) { */

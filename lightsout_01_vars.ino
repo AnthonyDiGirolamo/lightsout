@@ -18,7 +18,6 @@ Adafruit_MCP23017 mcp;
 
 #define RANDOMSEED1 31415926ul
 #define RANDOMSEED2 62831852ul
-#define MENU_DELAY 2000
 
 // Strings
 
@@ -37,25 +36,26 @@ char string_lights[]   PROGMEM = "Lights  ";
 char string_out[]      PROGMEM = "Out     ";
 char string_color[]    PROGMEM = "Color   ";
 char string_memory[]   PROGMEM = "Memory  ";
-char string_picker[]   PROGMEM = "Rainbow*";
-char string_fade[]     PROGMEM = "Fade    ";
+char string_picker[]   PROGMEM = "Chooser ";
+char string_fade[]     PROGMEM = "Rainbow ";
 char string_full[]     PROGMEM = "Full    ";
 char string_half[]     PROGMEM = "Half    ";
 
+#define MENU_DELAY 2000
 #define MAINMENU 0
 #define LIGHTS 1
-#define MEMORY 2
-#define PICKER 3
+#define PICKER 2
+#define MEMORY 3
 
 uint8_t mode = MAINMENU;
 
 // Color Schemes
 prog_uint32_t main_menu_color_schemes[] = {
-  0x252525, // off
+  0x040404, // off
+  0xFF9000, // item 4
+  0x0000FF, // item 3
   0xFF0000, // item 1
   0x00FF00, // item 2
-  0x0000FF, // item 3
-  0xFF9000, // item 4
 };
 
 prog_uint32_t lights_out_color_schemes[] = {
