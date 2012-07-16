@@ -89,7 +89,7 @@ void print_16_bits(uint16_t n) {
 
 // Return a button press 0-15
 // If a button is being held, return button value + 16
-int read_buttons() {
+int read_buttons(uint8_t skip_delay = 0) {
   static unsigned long button_timer;
   static uint16_t buttons1, buttons2;
 
@@ -106,7 +106,8 @@ int read_buttons() {
     if (buttons1 != buttons2) { // a different button from last time
       buttons2 = buttons1;
       button_timer = millis();
-      delay(40); // to prevent button bouncing
+      if (!skip_delay)
+        delay(40); // to prevent button bouncing
     }
     else { // same button as last, check for long press
       if (millis()-button_timer > 2000) {

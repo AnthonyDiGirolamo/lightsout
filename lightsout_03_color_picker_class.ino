@@ -100,11 +100,13 @@ class ColorPicker {
 
     void begin() {
       while (1) {
-        button = read_buttons();
+        if (fading)
+          button = read_buttons(1);
+        else
+          button = read_buttons();
+
         if (button >= 0) {
           switch(button) {
-            case -1:
-              break;
             case 7:
             case 23:
               // more red

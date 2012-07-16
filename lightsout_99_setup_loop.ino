@@ -3,7 +3,7 @@ void setup() {
 
   // Setup 16-segment display
   alpha_board.begin();
-  alpha_board.set_global_brightness(1);
+  alpha_board.set_global_brightness(2);
 
   // Setup RGB Strip
   strip.begin();
@@ -29,16 +29,31 @@ void setup() {
   //colorWipe(Color(255, 0, 0), 50);
   //colorWipe(Color(255, 255, 255), 50);
 
-  ColorPicker cp = ColorPicker();
-  cp.begin();
+  main_menu();
 }
 
 void main_menu() {
   int i = 0;
+  int button;
   unsigned long time = millis();
-  uint8_t new_mode = 255;
-  while (new_mode != mode) {
+  uint8_t new_mode = MAINMENU;
+  while (1) {
     // check for button press and set mode
+    button = read_buttons();
+    if (button >= 0) {
+      switch(button) {
+        case 15:
+          new_mode = LIGHTS;
+          LightsOut game = LightsOut();
+          game.begin();
+          break;
+        case 14:
+          new_mode = PICKER;
+          ColorPicker cp = ColorPicker();
+          cp.begin();
+          break;
+      }
+    }
 
     // if MENU_DELAY time has elapsed
     if (millis() - time > MENU_DELAY) {
@@ -79,51 +94,6 @@ void main_menu() {
 }
 
 void loop() {
-  //int i = 0;
-
-  //// Test pushing buttons
-  //LightsOut game = LightsOut();
-  //game.current_board = 65535;
-  //print_16_bits(game.current_board);
-  //delay(2000);
-  //for(i = 0; i<16; i++) {
-    //print_board(game.push(i));
-    //print_16_bits(game.current_board);
-    //delay(2000);
-  //}
-  //if (game.has_won())
-    //max_print_progmem(string_win);
-
-  //delay(1000);
-  //// Run a few games
-  //game = LightsOut();
-  //for(i=0; i<1; i++) {
-    //max_print_progmem(string_level);
-    //Serial.println(game.current_level);
-    //delay(1000);
-
-    //max_print_progmem(string_board);
-    //print_16_bits(game.current_board);
-    //update_board(game.current_board);
-    //delay(10000);
-
-    //max_print_progmem(string_solution);
-    //print_16_bits(game.current_board_solution);
-    //update_board(game.current_board_solution);
-    //delay(10000);
-
-    //max_print_progmem(string_moves);
-    //Serial.println(game.required_moves);
-    //delay(10000);
-
-    //if (game.has_won())
-      //max_print_progmem(string_win);
-
-    //delay(10000);
-    //game.advance_level();
-  //}
-
-  //delay(999999);
 }
 
 // vim: ft=cpp
