@@ -33,6 +33,22 @@ void colorWipe(uint32_t c, uint8_t wait) {
   }
 }
 
+void rainbowCycle(uint8_t wait) {
+  int i, j;
+
+  for (j=0; j < 256 * 15; j++) {     // 10 cycles of all 25 colors in the wheel
+    for (i=0; i < strip.numPixels(); i++) {
+      // tricky math! we use each pixel as a fraction of the full 96-color wheel
+      // (thats the i / strip.numPixels() part)
+      // Then add in j which makes the colors go around per pixel
+      // the % 96 is to make the wheel cycle around
+      strip.setPixelColor(spiral_light_index[i], Wheel( ((i * 256 / strip.numPixels()) + j) % 256) );
+    }
+    strip.show();   // write all the pixels out
+    delay(wait);
+  }
+}
+
 void max_print_progmem(char* string, uint8_t col = -1, uint8_t row = -1) {
   char buffer[32];
   strcpy_P(buffer, string);

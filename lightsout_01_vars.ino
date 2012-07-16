@@ -24,7 +24,8 @@ Adafruit_MCP23017 mcp;
 char string_empty[]    PROGMEM = "                ";
 
 // Main Menu
-char string_mainmenu[] PROGMEM = "Main.Menu";
+char string_mainmenu1[] PROGMEM = "Hello   ";
+char string_mainmenu2[] PROGMEM = "   There";
 char string_lights[]   PROGMEM = "Lights  ";
 char string_out[]      PROGMEM = "Out     ";
 char string_color[]    PROGMEM = "Color   ";
@@ -32,7 +33,7 @@ char string_picker[]   PROGMEM = "Chooser ";
 
 // Lights Out
 char string_paused[]   PROGMEM = "Paused  ";
-char string_win[]      PROGMEM = "You Win ";
+char string_win[]      PROGMEM = "*You.Win*";
 char string_perfect[]  PROGMEM = "Perfect ";
 char string_level[]    PROGMEM = "Level   ";
 char string_board[]    PROGMEM = "Board   ";
@@ -41,7 +42,7 @@ char string_restart[]  PROGMEM = "Restart ";
 char string_next[]     PROGMEM = "Next    ";
 char string_prev[]     PROGMEM = "Previous";
 char string_moves[]    PROGMEM = "Moves   ";
-char string_testing[]  PROGMEM = "TEST.TEST";
+char string_cancel[]   PROGMEM = "Back   ";
 
 // Color Chooser
 char string_fade[]     PROGMEM = "Rainbow ";
@@ -49,12 +50,6 @@ char string_full[]     PROGMEM = "Full    ";
 char string_half[]     PROGMEM = "Half    ";
 
 #define MENU_DELAY 2000
-#define MAINMENU 0
-#define LIGHTS 1
-#define PICKER 2
-#define MEMORY 3
-
-uint8_t mode = MAINMENU;
 
 // Color Schemes
 prog_uint32_t main_menu_color_schemes[] = {
@@ -67,10 +62,10 @@ prog_uint32_t main_menu_color_schemes[] = {
 
 prog_uint32_t main_menu_color_schemes_dim[] = {
   0x040404, // off
-  0xFF9000, // item 4
-  0x000080, // item 3
-  0x800000, // item 1
-  0x008000, // item 2
+  0x401800, // item 4
+  0x000040, // item 3
+  0x400000, // item 1
+  0x004000, // item 2
 };
 
 prog_uint32_t lights_out_color_schemes[] = {
@@ -144,6 +139,43 @@ prog_uint8_t board_light_index[] = {
   1,
   2,
   3
+};
+
+// Strand Board Indexes
+// 15 14 13 12
+// 11 10 9  8
+// 7  6  5  4
+// 3  2  1  0
+
+// Strand Hardware Indexes
+// 3  2  1  0
+// 4  5  6  7
+// 11 10 9  8
+// 12 13 14 15
+
+// Strand Spiral Indexes
+// 3  2  1  0
+// 4  13 12 11
+// 5  14 15 10
+// 6  7  8  9
+
+prog_uint8_t spiral_light_index[] = {
+  0,
+  1,
+  2,
+  3,
+  4,
+  11,
+  12,
+  13,
+  14,
+  15,
+  8,
+  7,
+  6,
+  5,
+  10,
+  9,
 };
 
 // Matrix for solving a given lights out game

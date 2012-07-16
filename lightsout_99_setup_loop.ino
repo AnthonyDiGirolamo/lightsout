@@ -20,54 +20,53 @@ void setup() {
 }
 
 void main_menu() {
-  int i = 0, button = 0;
+  int i = 1, button = 0;
   unsigned long time = millis();
+
+  max_print_progmem(string_mainmenu1, 0, 0);
+  max_print_progmem(string_mainmenu2, 1, 0);
+  colorWipe(main_menu_color_schemes[current_scheme], 0);
+  delay(3000);
+
   while (1) {
-    // check for button press and set mode
+    // if MENU_DELAY time has elapsed
+    if (millis() - time > MENU_DELAY) {
+      if (i == 1) {
+        max_print_progmem(string_lights, 0, 0);
+        max_print_progmem(string_out, 1, 0);
+      }
+      else if (i == 2) {
+        max_print_progmem(string_color, 0, 0);
+        max_print_progmem(string_picker, 1, 0);
+      }
+
+      // Set Dim Colors
+      for (int x=0; x<2; x++)
+        strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
+
+      // Highlight Current Menu Option
+      strip.setPixelColor(board_light_index[16-i], main_menu_color_schemes[current_scheme+i]);
+      strip.show();
+
+      i++;
+      if (i>2)
+        i=1;
+      time = millis();
+    }
+
+    // check for button press
     button = read_buttons();
     if (button >= 0) {
       if (button == 15) {
-        mode = LIGHTS;
         LightsOut game = LightsOut();
         game.begin();
       }
       else if (button == 14) {
-        mode = PICKER;
         ColorPicker cp = ColorPicker();
         cp.begin();
       }
     }
 
-    // if MENU_DELAY time has elapsed
-    if (millis() - time > MENU_DELAY) {
-      // clear colors
-      colorWipe(main_menu_color_schemes[current_scheme], 0);
-
-      if (i == MAINMENU) {
-        max_print_progmem(string_mainmenu, 0, 0);
-        max_print_progmem(string_empty, 1, 0);
-        colorWipe(main_menu_color_schemes[current_scheme], 0);
-      }
-      else if (i == LIGHTS) {
-        max_print_progmem(string_lights, 0, 0);
-        max_print_progmem(string_out, 1, 0);
-        strip.setPixelColor(board_light_index[15],
-          main_menu_color_schemes[current_scheme+i]);
-        strip.show();
-      }
-      else if (i == PICKER) {
-        max_print_progmem(string_color, 0, 0);
-        max_print_progmem(string_picker, 1, 0);
-        strip.setPixelColor(board_light_index[14],
-          main_menu_color_schemes[current_scheme+i]);
-        strip.show();
-      }
-
-      i++;
-      if (i>PICKER)
-        i=LIGHTS;
-      time = millis();
-    }
   }
 }
 

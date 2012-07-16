@@ -102,14 +102,15 @@ class LightsOut {
 
       max_print_progmem(string_empty, 1, 0);
       sprintf(buffer, "  %3u/%02u", current_move_count, required_moves);
-      alpha_board.write_string(buffer, 1, 2);
+      alpha_board.write_string(buffer, 1, 0);
     }
 
     void pause() {
-      // TODO reset current moves and board to before the long hold
+      current_move_count -= 8;
 
       int i = 1;
       uint8_t done = 0;
+      unsigned long pause_start = millis();
       unsigned long time = millis();
 
       max_print_progmem(string_paused, 0, 0);
@@ -136,8 +137,8 @@ class LightsOut {
             max_print_progmem(string_level, 1, 0);
           }
           else if (i == 4) {
-            max_print_progmem(string_prev, 0, 0);
-            max_print_progmem(string_level, 1, 0);
+            max_print_progmem(string_cancel, 0, 0);
+            max_print_progmem(string_empty, 1, 0);
           }
 
           // Set Dim Colors
@@ -181,6 +182,7 @@ class LightsOut {
         }
 
       }
+      level_start_time = pause_start;
     }
 
     void begin() {
@@ -207,7 +209,15 @@ class LightsOut {
 
             if (has_won()) {
               max_print_progmem(string_win, 0, 0);
-              delay(2000);
+              /* for (int x=0; x<4; x++) { */
+              /*   max_print_progmem(string_win, 0, 0); */
+              /*   delay(800); */
+              /*   max_print_progmem(string_empty, 0, 0); */
+              /*   delay(800); */
+              /* } */
+              rainbowCycle(1);
+
+
 
               advance_level();
               update_board();
@@ -216,7 +226,7 @@ class LightsOut {
           }
         }
 
-        update_text();
+        print_time(level_start_time, millis(), 0, 4);
         /* if (millis()-timer > 4000) { */
         /* } */
       } // end while
