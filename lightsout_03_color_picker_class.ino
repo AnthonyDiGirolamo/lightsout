@@ -170,7 +170,7 @@ class ColorPicker {
 
           // extra delay to slow down fast presses
           if (button == 16 || button == 0 || button == 4 || button == 20)
-            delay(100);
+            delay(250);
           else
             delay(100);
         }
