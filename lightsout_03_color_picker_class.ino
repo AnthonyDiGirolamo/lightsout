@@ -5,7 +5,7 @@ class ColorPicker {
     bool fading;
     uint8_t red, green, blue;
     uint8_t rand_red, rand_green, rand_blue;
-    uint8_t button;
+    int button;
     unsigned long timer;
     unsigned long fade_timer;
     int fade_i, fade_j;
@@ -106,7 +106,7 @@ class ColorPicker {
         else
           button = read_buttons();
 
-        if (button >= 0) {
+        if (button <= 31 && button >= 0) {
           switch(button) {
             case 7:
             case 23:
