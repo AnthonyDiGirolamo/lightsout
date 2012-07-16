@@ -38,6 +38,9 @@ char string_out[]      PROGMEM = "Out     ";
 char string_color[]    PROGMEM = "Color   ";
 char string_memory[]   PROGMEM = "Memory  ";
 char string_picker[]   PROGMEM = "Rainbow*";
+char string_fade[]     PROGMEM = "Fade    ";
+char string_full[]     PROGMEM = "Full    ";
+char string_half[]     PROGMEM = "Half    ";
 
 #define MAINMENU 0
 #define LIGHTS 1

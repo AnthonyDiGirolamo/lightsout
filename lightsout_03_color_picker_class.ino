@@ -58,7 +58,7 @@ class ColorPicker {
     void update_color() {
       if (!fading) {
         uint32_t c = Color(red, green, blue);
-        for (int i=15; i>7; i--) {
+        for (int i=15; i>= (using_all_lights ? 0 : 8) ; i--) {
           strip.setPixelColor(board_light_index[i], c);
         }
         strip.show();
@@ -66,7 +66,13 @@ class ColorPicker {
     }
 
     void update_text() {
-      max_print_progmem(string_picker, 0, 0);
+      if (fading)
+        max_print_progmem(string_fade, 0, 0);
+      else if (using_all_lights)
+        max_print_progmem(string_full, 0, 0);
+      else
+        max_print_progmem(string_half, 0, 0);
+
       sprintf(buffer, "0x%02X%02X%02X", red, green, blue);
       // sprintf(buffer, "R%03uG%03uB%03u", red, green, blue);
       alpha_board.write_string(buffer, 1, 0);
@@ -74,13 +80,13 @@ class ColorPicker {
 
     void toggle_fading() {
       fading = fading ? false : true;
+      using_all_lights = false;
+
       if (fading) {
-        using_all_lights = true;
         fade_i = 0; fade_j = 0;
         fade_timer = millis();
       }
       else {
-        using_all_lights = false;
         set_control_colors();
       }
     }
@@ -97,6 +103,8 @@ class ColorPicker {
         button = read_buttons();
         if (button >= 0) {
           switch(button) {
+            case -1:
+              break;
             case 7:
             case 23:
               // more red
@@ -157,18 +165,19 @@ class ColorPicker {
           update_color();
           update_text();
 
+          // extra delay to slow down fast presses
           if (button == 16 || button == 0 || button == 4 || button == 20)
             delay(1000);
           else
-            delay(250);
+            delay(100);
         }
 
-        if (millis()-timer > 4000) {
+        if (millis()-timer > 3000) {
           generate_random_color();
         }
 
         if (fading /*&& (millis()-fade_timer > 5)*/) {
-          fade_timer=millis();
+          /* fade_timer=millis(); */
           for (fade_i=0; fade_i < strip.numPixels(); fade_i++) {
             // tricky math! we use each pixel as a fraction of the full 96-color wheel
             // (thats the i / strip.numPixels() part)
