@@ -1,44 +1,69 @@
 class LightsOut {
   public:
     char buffer[20];
+    bool random_game;
     uint8_t current_level;
+    uint8_t current_random_level;
     uint8_t required_moves;
-    uint8_t current_move_count;
+    uint16_t current_move_count;
     uint16_t current_board;
     uint16_t current_board_reset;
     uint16_t current_board_solution;
+    uint16_t last_random_level;
     int button;
     unsigned long level_start_time;
 
     LightsOut() {
+      random_game = false;
       randomSeed(RANDOMSEED1);
       current_level = 0;
+      current_random_level = 0;
       advance_level();
     }
+
     void randomize_board() {
       current_board = (uint16_t) rand();
       current_board_reset = current_board;
+      last_random_level = current_board;
     }
+
     void reset_board() {
       current_move_count = 0;
       current_board = current_board_reset;
       level_start_time = millis();
     }
+
     void advance_level() {
-      randomize_board();
-      current_level++;
-      current_move_count = 0;
+      if (!random_game && current_level>31) {
+        random_game = true;
+        current_random_level = 0;
+      }
+
+      if (random_game) {
+        current_random_level++;
+        randomize_board();
+      }
+      else {
+        current_level++;
+        /* memcmp_PF(&current_board, mini_lightsout_levels[current_level], 2); */
+        current_board = mini_lightsout_levels[current_level];
+        current_board_reset = current_board;
+      }
+
+      reset_board();
       current_board_solution = find_solution();
       required_moves = count_ones(current_board_solution);
-      level_start_time = millis();
     }
+
     bool has_won() {
       return (current_board == 0);
     }
+
     uint16_t toggle(uint8_t space) {
       current_board ^= space_masks[space];
       return current_board;
     }
+
     uint16_t push(uint8_t space) {
       current_move_count++;
       current_board ^= space_masks[space];
@@ -48,6 +73,7 @@ class LightsOut {
       current_board ^= space_masks[neighbors[space][3]];
       return current_board;
     }
+
     uint16_t find_solution() {
       uint16_t a, b, x, solution;
       solution = 0;
@@ -63,6 +89,7 @@ class LightsOut {
       }
       return solution;
     }
+
     unsigned int count_ones(unsigned int number) {
       unsigned int v = number; // count the number of bits set in v
       unsigned int c = 0; // c accumulates the total bits set in v
@@ -74,6 +101,7 @@ class LightsOut {
       //}
       return c;
     }
+
     void display_solution() {
       uint16_t lit = 0;
       for(int i=15; i>=0; i--) {
@@ -82,6 +110,7 @@ class LightsOut {
       }
       strip.show();
     }
+
     void update_board() {
       uint16_t lit = 0;
       for(int i=15; i>=0; i--) {
@@ -90,12 +119,13 @@ class LightsOut {
       }
       strip.show();
     }
+
     void update_text() {
       /* max_print_progmem(string_level, 0, 0); */
       /* sprintf(buffer, "%02u", current_level); */
       /* alpha_board.write_string(buffer, 0, 6); */
 
-      sprintf(buffer, "L%02u ", current_level);
+      sprintf(buffer, "%c%02u ", (random_game ? 'R' : 'L'), (random_game ? current_random_level: current_level));
       alpha_board.write_string(buffer, 0, 0);
 
       print_time(level_start_time, millis(), 0, 4);
@@ -116,7 +146,11 @@ class LightsOut {
       max_print_progmem(string_paused, 0, 0);
       max_print_progmem(string_empty, 1, 0);
       colorWipe(main_menu_color_schemes[current_scheme], 0);
-      delay(MENU_DELAY);
+      // Set Dim Colors
+      for (int x=0; x<5; x++)
+        strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
+      strip.show();
+      delay(1000);
 
       while (!done) {
         // Display Menu Options
@@ -137,12 +171,16 @@ class LightsOut {
             max_print_progmem(string_level, 1, 0);
           }
           else if (i == 4) {
+            max_print_progmem(string_random, 0, 0);
+            max_print_progmem(string_level, 1, 0);
+          }
+          else if (i == 5) {
             max_print_progmem(string_cancel, 0, 0);
             max_print_progmem(string_empty, 1, 0);
           }
 
           // Set Dim Colors
-          for (int x=0; x<4; x++)
+          for (int x=0; x<5; x++)
             strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
 
           // Highlight Current Menu Option
@@ -170,14 +208,52 @@ class LightsOut {
             button = -1;
             while (button>31 || button<0)
               button = read_buttons();
-            done =1;
+            done = 1;
           }
           else if (button == 13) {
-            advance_level();
-            done =1;
+            if (random_game) {
+              max_print_progmem(string_normal, 0, 0);
+              max_print_progmem(string_levels, 1, 0);
+              delay(1000);
+              random_game = false;
+
+              current_board = mini_lightsout_levels[current_level];
+              current_board_reset = current_board;
+              reset_board();
+              current_board_solution = find_solution();
+              required_moves = count_ones(current_board_solution);
+            }
+            else {
+              advance_level();
+            }
+            done = 1;
           }
           else if (button == 12) {
-            done =1;
+            if (!random_game) {
+              max_print_progmem(string_random, 0, 0);
+              max_print_progmem(string_levels, 1, 0);
+              delay(1000);
+              random_game = true;
+
+              if (current_random_level == 0) {
+                current_random_level++;
+                randomize_board();
+              }
+              else {
+                current_board = last_random_level;
+                current_board_reset = last_random_level;
+              }
+              reset_board();
+              current_board_solution = find_solution();
+              required_moves = count_ones(current_board_solution);
+            }
+            else {
+              advance_level();
+            }
+            done = 1;
+          }
+          else if (button == 11) {
+            done = 1;
           }
         }
 
@@ -208,7 +284,8 @@ class LightsOut {
             update_text();
 
             if (has_won()) {
-              max_print_progmem(string_win, 0, 0);
+              max_print_progmem(string_you, 0, 0);
+              max_print_progmem(string_win, 1, 0);
               /* for (int x=0; x<4; x++) { */
               /*   max_print_progmem(string_win, 0, 0); */
               /*   delay(800); */

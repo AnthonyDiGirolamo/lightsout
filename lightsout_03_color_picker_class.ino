@@ -14,9 +14,10 @@ class ColorPicker {
       using_all_lights = false;
       fading = false;
       randomSeed(millis()+(unsigned long) analogRead(3));
+      reset_white();
+      colorWipe(Color(red, green, blue), 0);
       set_control_colors();
       generate_random_color();
-      reset_white();
     }
 
     void set_control_colors() {

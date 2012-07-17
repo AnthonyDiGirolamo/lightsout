@@ -33,16 +33,20 @@ char string_picker[]   PROGMEM = "Chooser ";
 
 // Lights Out
 char string_paused[]   PROGMEM = "Paused  ";
-char string_win[]      PROGMEM = "*You.Win*";
+char string_you[]      PROGMEM = "You";
+char string_win[]      PROGMEM = "Win";
 char string_perfect[]  PROGMEM = "Perfect ";
 char string_level[]    PROGMEM = "Level   ";
+char string_levels[]   PROGMEM = "Levels  ";
 char string_board[]    PROGMEM = "Board   ";
 char string_solution[] PROGMEM = "Solution";
 char string_restart[]  PROGMEM = "Restart ";
 char string_next[]     PROGMEM = "Next    ";
 char string_prev[]     PROGMEM = "Previous";
 char string_moves[]    PROGMEM = "Moves   ";
-char string_cancel[]   PROGMEM = "Back   ";
+char string_random[]   PROGMEM = "Random  ";
+char string_normal[]   PROGMEM = "Normal  ";
+char string_cancel[]   PROGMEM = "Resume  ";
 
 // Color Chooser
 char string_fade[]     PROGMEM = "Rainbow ";
@@ -54,18 +58,20 @@ char string_half[]     PROGMEM = "Half    ";
 // Color Schemes
 prog_uint32_t main_menu_color_schemes[] = {
   0x040404, // off
-  0xFF9000, // item 4
-  0x0000FF, // item 3
-  0xFF0000, // item 1
-  0x00FF00, // item 2
+  0xFF9000, // item 1
+  0x0000FF, // item 2
+  0xFF0000, // item 3
+  0x00FF00, // item 4
+  0xFF00FF, // item 5
 };
 
 prog_uint32_t main_menu_color_schemes_dim[] = {
   0x040404, // off
-  0x401800, // item 4
-  0x000040, // item 3
-  0x400000, // item 1
-  0x004000, // item 2
+  0x401800, // item 1
+  0x000040, // item 2
+  0x400000, // item 3
+  0x004000, // item 4
+  0x400040, // item 5
 };
 
 prog_uint32_t lights_out_color_schemes[] = {
@@ -217,5 +223,77 @@ prog_uint16_t solving_matrix[] = {
 //   {0,1,0,0,0,0,0,0,0,1,0,0,1,1,1,0},
 //   {0,0,1,0,0,0,0,0,0,0,1,0,0,1,1,1},
 //   {0,0,0,1,0,0,0,0,0,0,0,1,1,0,1,1} };
+
+
+/* Mini Lights Out Levels */
+
+prog_uint16_t mini_lightsout_levels[] = {
+  0xA0A0,
+  0xA0A0,
+  0xF99F,
+  0x4422,
+  0xEEEE,
+  0xDCAC,
+  0xF741,
+  0xF7DE,
+  0xF7EB,
+  0xAAEE,
+  0xDCCD,
+  0xB5AD,
+  0xCCEE,
+  0x256C,
+  0x6236,
+  0xE63,
+  0x91B1,
+  0x9669,
+  0x6996,
+  0xFF00,
+  0xD436,
+  0x7D89,
+  0x7D0D,
+  0xA141,
+  0x4BD9,
+  0x884B,
+  0xB424,
+  0x6886,
+  0x4A52,
+  0x4820,
+  0xA5A4,
+  0x7FFF,
+  0x4801
+};
+
+/* 1010000010100000 */
+/* 1111100110011111 */
+/* 0100010000100010 */
+/* 1110111011101110 */
+/* 1101110010101100 */
+/* 1111011101000001 */
+/* 1111011111011110 */
+/* 1111011111101011 */
+/* 1010101011101110 */
+/* 1101110011001101 */
+/* 1011010110101101 */
+/* 1100110011101110 */
+/* 0010010101101100 */
+/* 0110001000110110 */
+/* 0000111001100011 */
+/* 1001000110110001 */
+/* 1001011001101001 */
+/* 0110100110010110 */
+/* 1111111100000000 */
+/* 1101010000110110 */
+/* 0111110110001001 */
+/* 0111110100001101 */
+/* 1010000101000001 */
+/* 0100101111011001 */
+/* 1000100001001011 */
+/* 1011010000100100 */
+/* 0110100010000110 */
+/* 0100101001010010 */
+/* 0100100000100000 */
+/* 1010010110100100 */
+/* 0111111111111111 */
+/* 0100100000000001 */
 
 // vim: ft=cpp

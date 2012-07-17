@@ -16,6 +16,11 @@ void setup() {
     mcp.pullUp(i, HIGH);  // turn on a 100K pullup internally
   }
 
+  /* delay(5000); */
+  /* for (int i=0; i< 32; i++) { */
+  /*   Serial.println(mini_lightsout_levels[i], BIN); */
+  /* } */
+
   main_menu();
 }
 
@@ -26,6 +31,10 @@ void main_menu() {
   max_print_progmem(string_mainmenu1, 0, 0);
   max_print_progmem(string_mainmenu2, 1, 0);
   colorWipe(main_menu_color_schemes[current_scheme], 0);
+  // Set Dim Colors
+  for (int x=0; x<2; x++)
+    strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
+  strip.show();
   delay(3000);
 
   while (1) {

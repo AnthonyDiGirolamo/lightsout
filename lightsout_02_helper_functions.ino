@@ -36,7 +36,7 @@ void colorWipe(uint32_t c, uint8_t wait) {
 void rainbowCycle(uint8_t wait) {
   int i, j;
 
-  for (j=0; j < 256 * 15; j++) {     // 10 cycles of all 25 colors in the wheel
+  for (j=0; j < 256 * 10; j++) {     // 10 cycles of all 25 colors in the wheel
     for (i=0; i < strip.numPixels(); i++) {
       // tricky math! we use each pixel as a fraction of the full 96-color wheel
       // (thats the i / strip.numPixels() part)
