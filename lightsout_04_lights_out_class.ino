@@ -188,7 +188,7 @@ class LightsOut {
           strip.show();
 
           i++;
-          if (i>4)
+          if (i>5)
             i=1;
         }
 
