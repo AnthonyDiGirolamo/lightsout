@@ -3,7 +3,7 @@ void setup() {
 
   // Setup 16-segment display
   alpha_board.begin();
-  alpha_board.set_global_brightness(5);
+  alpha_board.set_global_brightness(4);
 
   // Setup RGB Strip
   strip.begin();

@@ -8,5 +8,8 @@
 #include <Wire.h>
 #include "Adafruit_MCP23017.h"
 
+#include <EEPROM.h>
+#include "EEPROMAnything.h"
+
 // vim: ft=cpp
 

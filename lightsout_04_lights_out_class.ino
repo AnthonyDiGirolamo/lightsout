@@ -12,6 +12,7 @@ class LightsOut {
     uint16_t last_random_level;
     int button;
     unsigned long level_start_time;
+    uint32_t lit_color;
 
     LightsOut() {
       random_game = false;
@@ -19,6 +20,7 @@ class LightsOut {
       current_level = 0;
       current_random_level = 0;
       advance_level();
+      EEPROM_readAnything(0, lit_color);
     }
 
     void randomize_board() {
@@ -115,7 +117,7 @@ class LightsOut {
       uint16_t lit = 0;
       for(int i=15; i>=0; i--) {
         lit = (current_board & space_masks[i]) >> i;
-        strip.setPixelColor(board_light_index[i], (lit ? lights_out_color_schemes[current_scheme] : lights_out_color_schemes[current_scheme+1]));
+        strip.setPixelColor(board_light_index[i], (lit ? lit_color : lights_out_color_schemes[current_scheme+1]));
       }
       strip.show();
     }

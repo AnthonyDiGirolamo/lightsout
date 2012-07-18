@@ -52,6 +52,7 @@ char string_cancel[]   PROGMEM = "Resume  ";
 char string_fade[]     PROGMEM = "Rainbow ";
 char string_full[]     PROGMEM = "Full    ";
 char string_half[]     PROGMEM = "Half    ";
+char string_saved[]    PROGMEM = "Saved   ";
 
 #define MENU_DELAY 2000
 

@@ -165,6 +165,11 @@ class ColorPicker {
             case 8:
               toggle_all_lights();
               break;
+            case 28:
+              EEPROM_writeAnything(0, Color(red, green, blue));
+              max_print_progmem(string_saved, 0, 0);
+              delay(500);
+              break;
           }
           update_color();
           update_text();
