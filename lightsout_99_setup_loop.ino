@@ -1,5 +1,5 @@
 void setup() {
-  /* Serial.begin(9600); */
+  Serial.begin(9600);
 
   // Setup 16-segment display
   alpha_board.begin();
