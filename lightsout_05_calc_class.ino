@@ -3,15 +3,13 @@
 #define MAXEXPRSIZE 128
 #define LCDCOLS 8
 
-class Calc {
-  public:
   double numstack[MAXNUMSTACK];
-  int numstack_size;
+  int numstack_size = 0;
   char expression[MAXEXPRSIZE];
-  int expr_size;
+  int expr_size = 0;
   char buffer[16];
-  int eval;
-  double result;
+  int eval = 0;
+  double result = 0;
   char c;
   int window_start;
   int window_end;
@@ -27,7 +25,7 @@ class Calc {
     double (*eval)(double a1, double a2);
   };
 
-  operators[]={
+  struct operator_type operators[]={
     {'_', 10, ASSOC_RIGHT, 1, eval_uminus},
     {'^', 9,  ASSOC_RIGHT, 0, eval_exp},
     {'*', 8,  ASSOC_LEFT,  0, eval_mul},
@@ -38,17 +36,8 @@ class Calc {
     {'(', 0,  ASSOC_NONE,  0, NULL},
     {')', 0,  ASSOC_NONE,  0, NULL}
   };
-
   struct operator_type *opstack[MAXOPSTACK];
-  int nopstack;
-
-  Calc() {
-    numstack_size = 0;
-    expr_size     = 0;
-    eval          = 0;
-    result        = 0;
-    nopstack      = 0;
-  }
+  int nopstack = 0;
 
   void clear_display() {
     max_print_progmem(string_empty,0,0);
@@ -308,7 +297,7 @@ class Calc {
     return numstack[0];
   }
 
-  void begin() {
+  void calc_begin() {
     while (1) {
       button = read_buttons();
       if (button >= 0) { // there is a button press
@@ -322,14 +311,14 @@ class Calc {
           eval = 1;
         }
         else if (c == 27) { // esc
-          for (int i=0; i<EXPRSIZE; i++) {
+          for (int i=0; i<MAXEXPRSIZE; i++) {
             expression[i] = ' ';
           }
-          expression[EXPRSIZE-1]='\0';
+          expression[MAXEXPRSIZE-1]='\0';
           expr_size = 0;
           clear_display();
         }
-        else if (expr_size < EXPRSIZE-1) {
+        else if (expr_size < MAXEXPRSIZE-1) {
           expression[expr_size] = c;
           expr_size++;
         }
@@ -352,12 +341,12 @@ class Calc {
           window_start = expr_size-LCDCOLS;
         }
         window_end = window_start+LCDCOLS;
-        if (window_end > (EXPRSIZE-1)){
-          window_end = EXPRSIZE-1;
+        if (window_end > (MAXEXPRSIZE-1)){
+          window_end = MAXEXPRSIZE-1;
         }
 
         clear_display();
-        alpha_board.write_string(expression[window_start],0,0);
+        alpha_board.write_string(&expression[window_start],0,0);
         //for (int i=window_start; i<window_end; i++){
           //lcd.write(expression[i]);
         //}
@@ -371,7 +360,7 @@ class Calc {
           Serial.println(result);
           */
           clear_display();
-          alpha_board.write_string(expression[window_start],0,0);
+          alpha_board.write_string(&expression[window_start],0,0);
           sprintf(buffer, "%f", result);
           alpha_board.write_string(buffer,1,0);
           clear_stack();
@@ -380,5 +369,4 @@ class Calc {
       }
     }
   }
-}
 

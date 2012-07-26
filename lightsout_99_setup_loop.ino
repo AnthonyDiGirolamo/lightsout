@@ -32,10 +32,10 @@ void main_menu() {
   max_print_progmem(string_mainmenu2, 1, 0);
   colorWipe(main_menu_color_schemes[current_scheme], 0);
   // Set Dim Colors
-  for (int x=0; x<2; x++)
+  for (int x=0; x<3; x++)
     strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
   strip.show();
-  delay(3000);
+  delay(1000);
 
   while (1) {
     // if MENU_DELAY time has elapsed
@@ -50,7 +50,7 @@ void main_menu() {
       }
 
       // Set Dim Colors
-      for (int x=0; x<2; x++)
+      for (int x=0; x<3; x++)
         strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
 
       // Highlight Current Menu Option
@@ -58,7 +58,7 @@ void main_menu() {
       strip.show();
 
       i++;
-      if (i>2)
+      if (i>3)
         i=1;
       time = millis();
     }
@@ -73,6 +73,9 @@ void main_menu() {
       else if (button == 14) {
         ColorPicker cp = ColorPicker();
         cp.begin();
+      }
+      else if (button == 13) {
+        calc_begin();
       }
     }
 
