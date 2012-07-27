@@ -24,12 +24,13 @@ Adafruit_MCP23017 mcp;
 char string_empty[]    PROGMEM = "                ";
 
 // Main Menu
-char string_mainmenu1[] PROGMEM = "Hello   ";
-char string_mainmenu2[] PROGMEM = "   There";
+char string_mainmenu1[] PROGMEM = "Main    ";
+char string_mainmenu2[] PROGMEM = "Menu    ";
 char string_lights[]   PROGMEM = "Lights  ";
 char string_out[]      PROGMEM = "Out     ";
 char string_color[]    PROGMEM = "Color   ";
 char string_picker[]   PROGMEM = "Chooser ";
+char string_calc[]     PROGMEM = "Calc    ";
 
 // Lights Out
 char string_paused[]   PROGMEM = "Paused  ";

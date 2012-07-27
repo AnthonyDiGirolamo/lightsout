@@ -67,6 +67,9 @@ class Calc {
     eval          = 0;
     result        = 0;
     nopstack      = 0;
+    for (int i=0; i<MAXEXPRSIZE; i++)
+      expression[i] = ' ';
+    expression[MAXEXPRSIZE-1]='\0';
   }
 
   void clear_display() {
@@ -311,6 +314,7 @@ class Calc {
     while (1) {
       button = read_buttons();
       if (button >= 0) { // there is a button press
+        delay(500);
         c = get_keypress();
 
         if (c == 127) { // backspace

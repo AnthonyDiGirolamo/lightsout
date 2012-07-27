@@ -48,6 +48,10 @@ void main_menu() {
         max_print_progmem(string_color, 0, 0);
         max_print_progmem(string_picker, 1, 0);
       }
+      else if (i == 3) {
+        max_print_progmem(string_calc, 0, 0);
+        max_print_progmem(string_empty, 1, 0);
+      }
 
       // Set Dim Colors
       for (int x=0; x<3; x++)
