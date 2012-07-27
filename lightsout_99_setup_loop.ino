@@ -75,7 +75,8 @@ void main_menu() {
         cp.begin();
       }
       else if (button == 13) {
-        calc_begin();
+        Calc cal = Calc();
+        cal.begin();
       }
     }
 

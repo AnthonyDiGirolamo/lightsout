@@ -3,41 +3,71 @@
 #define MAXEXPRSIZE 128
 #define LCDCOLS 8
 
+enum {ASSOC_NONE=0, ASSOC_LEFT, ASSOC_RIGHT};
+struct operator_type {
+  char op;
+  int prec;
+  int assoc;
+  int unary;
+  double (*eval)(double a1, double a2);
+};
+operator_type operators[]={
+  {'_', 10, ASSOC_RIGHT, 1, eval_uminus},
+  {'^', 9,  ASSOC_RIGHT, 0, eval_exp},
+  {'*', 8,  ASSOC_LEFT,  0, eval_mul},
+  {'/', 8,  ASSOC_LEFT,  0, eval_div},
+  {'%', 8,  ASSOC_LEFT,  0, eval_mod},
+  {'+', 5,  ASSOC_LEFT,  0, eval_add},
+  {'-', 5,  ASSOC_LEFT,  0, eval_sub},
+  {'(', 0,  ASSOC_NONE,  0, NULL},
+  {')', 0,  ASSOC_NONE,  0, NULL}
+};
+double eval_add(double a1, double a2) { return a1+a2; }
+double eval_sub(double a1, double a2) { return a1-a2; }
+double eval_uminus(double a1, double a2) { return -a1; }
+double eval_exp(double a1, double a2) { return a2<0 ? 0 : (a2==0?1:a1*eval_exp(a1, a2-1)); }
+double eval_mul(double a1, double a2) { return a1*a2; }
+double eval_div(double a1, double a2) {
+  if(!a2) {
+    Serial.println("ERROR: Division by zero\n");
+    return NULL;
+  }
+  return a1/a2;
+}
+double eval_mod(double a1, double a2) {
+  if(!a2) {
+    Serial.println("ERROR: Division by zero\n");
+    return NULL;
+  }
+  return fmod(a1, a2);
+}
+
+
+
+class Calc {
+  public:
   double numstack[MAXNUMSTACK];
-  int numstack_size = 0;
+  int numstack_size;
   char expression[MAXEXPRSIZE];
-  int expr_size = 0;
+  int expr_size;
   char buffer[16];
-  int eval = 0;
-  double result = 0;
+  int eval;
+  double result;
   char c;
   int window_start;
   int window_end;
   int button;
 
-  enum {ASSOC_NONE=0, ASSOC_LEFT, ASSOC_RIGHT};
-
-  struct operator_type {
-    char op;
-    int prec;
-    int assoc;
-    int unary;
-    double (*eval)(double a1, double a2);
-  };
-
-  struct operator_type operators[]={
-    {'_', 10, ASSOC_RIGHT, 1, eval_uminus},
-    {'^', 9,  ASSOC_RIGHT, 0, eval_exp},
-    {'*', 8,  ASSOC_LEFT,  0, eval_mul},
-    {'/', 8,  ASSOC_LEFT,  0, eval_div},
-    {'%', 8,  ASSOC_LEFT,  0, eval_mod},
-    {'+', 5,  ASSOC_LEFT,  0, eval_add},
-    {'-', 5,  ASSOC_LEFT,  0, eval_sub},
-    {'(', 0,  ASSOC_NONE,  0, NULL},
-    {')', 0,  ASSOC_NONE,  0, NULL}
-  };
   struct operator_type *opstack[MAXOPSTACK];
-  int nopstack = 0;
+  int nopstack;
+
+  Calc() {
+    numstack_size = 0;
+    expr_size     = 0;
+    eval          = 0;
+    result        = 0;
+    nopstack      = 0;
+  }
 
   void clear_display() {
     max_print_progmem(string_empty,0,0);
@@ -109,26 +139,6 @@
       numstack[i]=0;
     }
     numstack_size=0;
-  }
-
-  double eval_add(double a1, double a2) { return a1+a2; }
-  double eval_sub(double a1, double a2) { return a1-a2; }
-  double eval_uminus(double a1, double a2) { return -a1; }
-  double eval_exp(double a1, double a2) { return a2<0 ? 0 : (a2==0?1:a1*eval_exp(a1, a2-1)); }
-  double eval_mul(double a1, double a2) { return a1*a2; }
-  double eval_div(double a1, double a2) {
-    if(!a2) {
-      Serial.println("ERROR: Division by zero\n");
-      return NULL;
-    }
-    return a1/a2;
-  }
-  double eval_mod(double a1, double a2) {
-    if(!a2) {
-      Serial.println("ERROR: Division by zero\n");
-      return NULL;
-    }
-    return fmod(a1, a2);
   }
 
   struct operator_type *getop(char ch) {
@@ -297,7 +307,7 @@
     return numstack[0];
   }
 
-  void calc_begin() {
+  void begin() {
     while (1) {
       button = read_buttons();
       if (button >= 0) { // there is a button press
@@ -369,4 +379,5 @@
       }
     }
   }
+};
 
