@@ -149,4 +149,12 @@ void print_time(unsigned long start, unsigned long end, int row = 0, int col = 0
   alpha_board.write_string(b, row, col);
 }
 
+void print_board(uint16_t board, uint32_t lit_color) {
+  uint16_t lit = 0;
+  for(int i=15; i>=0; i--) {
+    lit = (board & space_masks[i]) >> i;
+    strip.setPixelColor(board_light_index[i], (lit ? lit_color : lights_out_color_schemes[current_scheme+1]));
+  }
+  strip.show();
+}
 // vim: ft=cpp
