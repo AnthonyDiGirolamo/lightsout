@@ -59,7 +59,7 @@ char string_saved[]    PROGMEM = "Saved   ";
 
 // Color Schemes
 prog_uint32_t main_menu_color_schemes[] = {
-  0x040404, // off
+  0x000000, // off
   0xFF9000, // item 1
   0x0000FF, // item 2
   0xFF0000, // item 3
@@ -68,7 +68,7 @@ prog_uint32_t main_menu_color_schemes[] = {
 };
 
 prog_uint32_t main_menu_color_schemes_dim[] = {
-  0x040404, // off
+  0x000000, // off
   0x401800, // item 1
   0x000040, // item 2
   0x400000, // item 3
@@ -78,9 +78,9 @@ prog_uint32_t main_menu_color_schemes_dim[] = {
 
 prog_uint32_t lights_out_color_schemes[] = {
   0xFF9000, // on
-  0x040404, // off
+  0x000000, // off
   0x000080, // on
-  0x040404, // off
+  0x000000, // off
 };
 uint8_t current_scheme = 0; // index of on color in color_schemes array
 

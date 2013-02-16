@@ -28,10 +28,28 @@ void main_menu() {
   int i = 1, button = 0;
   unsigned long time = millis();
 
-  //max_print_progmem(string_mainmenu1, 0, 0);
-  //max_print_progmem(string_mainmenu2, 1, 0);
+
   max_print_progmem(string_lights, 0, 0);
   max_print_progmem(string_out, 1, 0);
+
+  // Test Lowercase (Individual Segment Control)
+  //alpha_board.disable_decode_mode();
+  //alpha_board.turn_off_individual_segments();
+  //alpha_board.individual_segment_test();
+  //max_print_progmem(string_lights, 0, 0, 1);
+  //max_print_progmem(string_out, 1, 0, 1);
+  //alpha_board.write_lowercase_string("Grumpy  wizards ",0,0);
+  //delay(2000);
+  //alpha_board.write_lowercase_string("make    toxic   ",0,0);
+  //delay(2000);
+  //alpha_board.write_lowercase_string("brew forthe     ",0,0);
+  //delay(2000);
+  //alpha_board.write_lowercase_string("evil    Queen   ",0,0);
+  //delay(2000);
+  //alpha_board.write_lowercase_string("and Jack        ",0,0);
+  //delay(2000);
+  //alpha_board.enable_decode_mode(); // Enable MAX6954 Built-in Font
+
   colorWipe(main_menu_color_schemes[current_scheme], 0);
   // Set Dim Colors
   for (int x=0; x<2; x++)

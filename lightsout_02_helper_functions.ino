@@ -49,12 +49,21 @@ void rainbowCycle(uint8_t wait) {
   }
 }
 
-void max_print_progmem(char* string, uint8_t col = -1, uint8_t row = -1) {
+void max_print_progmem(char* string, uint8_t col = -1, uint8_t row = -1, bool lowercase = 0) {
   char buffer[32];
   strcpy_P(buffer, string);
-  alpha_board.write_string(buffer,
-      col>=0 ? col : 0,
-      row>=0 ? row : 0);
+  if (lowercase) {
+    //alpha_board.disable_decode_mode();
+    alpha_board.write_lowercase_string(buffer,
+        col>=0 ? col : 0,
+        row>=0 ? row : 0);
+  }
+  else {
+    //alpha_board.enable_decode_mode();
+    alpha_board.write_string(buffer,
+        col>=0 ? col : 0,
+        row>=0 ? row : 0);
+  }
 }
 
 void print_16_bits(uint16_t n) {
