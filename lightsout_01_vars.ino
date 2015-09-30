@@ -55,7 +55,7 @@ char string_full[]     PROGMEM = "Full    ";
 char string_half[]     PROGMEM = "Half    ";
 char string_saved[]    PROGMEM = "Saved   ";
 
-#define MENU_DELAY 2000
+#define MENU_DELAY 1000
 
 // Color Schemes
 prog_uint32_t main_menu_color_schemes[] = {
