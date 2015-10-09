@@ -1,8 +1,11 @@
 class Clock {
   public:
     char buffer[20];
-    uint8_t row_mode[2];
     int button;
+    uint8_t row_mode[2];
+    /* void (*row_one_mode)(uint8_t); */
+    /* void (*row_two_mode)(uint8_t); */
+
     DateTime now;
     uint16_t year;
     uint8_t month;
@@ -19,6 +22,8 @@ class Clock {
       row_mode[1] = 0;
       update_time();
       update_temp();
+      /* row_one_mode = display_24hr_time(0); */
+      /* row_two_mode = display_mmdd_weekday_date(1); */
     }
 
     void update_time() {
@@ -79,7 +84,7 @@ class Clock {
 
     void display_mmdd_weekday_date(uint8_t row) {
       sprintf(buffer, "%02u.%02u    ", month, day);
-      strcpy_P(&buffer[6], (char*)pgm_read_word(&(string_days[weekday])));
+      strcpy_P(&buffer[6], (char*)pgm_read_word( &(string_days[weekday]) ));
       alpha_board.write_string(buffer, row, 0);
     }
 
@@ -92,8 +97,9 @@ class Clock {
           time = millis();
           update_time();
           display_24hr_time(0);
-          /* display_mmddyy_date(1); */
           display_mmdd_weekday_date(1);
+          /* row_one_mode(0); */
+          /* row_two_mode(1); */
         }
 
         /* Serial.print(" since midnight 1/1/1970 = "); */

@@ -78,7 +78,7 @@ void print_16_bits(uint16_t n) {
   char s[32];
   sprintf(s, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
     (n & 0x08000 ? 1 : 0), \
-    (n & 0x04000 ? 1 : s), \
+    (n & 0x04000 ? 1 : 0), \
     (n & 0x02000 ? 1 : 0), \
     (n & 0x01000 ? 1 : 0), \
     (n & 0x0800 ? 1 : 0), \
