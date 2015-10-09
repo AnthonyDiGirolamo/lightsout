@@ -30,7 +30,8 @@ class Clock {
       max_print_progmem(string_empty, 1, 0);
       update_time();
       update_temp();
-      row_function[0] = &Clock::display_24hr_time;
+      /* row_function[0] = &Clock::display_12hr_time; */
+      row_function[0] = &Clock::display_24hr_weekday_time;
       /* row_function[1] = &Clock::display_mmdd_weekday_date; */
       row_function[1] = &Clock::display_hourglass;
       /* individual_segment_mode(1); */
@@ -107,8 +108,19 @@ class Clock {
       alpha_board.write_string(buffer, row, 0);
     }
 
-    void display_24hr_time(uint8_t row) {
+    void display_24hr_seconds_time(uint8_t row) {
       sprintf(buffer, " %02u.%02u.%02u ", hour, minute, second);
+      alpha_board.write_string(buffer, row, 0);
+    }
+
+    void display_24hr_time(uint8_t row) {
+      sprintf(buffer, "  %02u.%02u  ", hour, minute);
+      alpha_board.write_string(buffer, row, 0);
+    }
+
+    void display_24hr_weekday_time(uint8_t row) {
+      sprintf(buffer, "%02u.%02u    ", hour, minute);
+      strcpy_P(&buffer[6], (char*)pgm_read_word( &(string_days[weekday]) ));
       alpha_board.write_string(buffer, row, 0);
     }
 
