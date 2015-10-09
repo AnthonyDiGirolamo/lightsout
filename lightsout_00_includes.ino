@@ -7,6 +7,8 @@
 
 #include <Wire.h>
 #include "Adafruit_MCP23017.h"
+#include <RTClib.h>
+#include <RTC_DS3231.h>
 
 #include <EEPROM.h>
 #include "EEPROMAnything.h"
@@ -17,4 +19,3 @@
 //#include <math.h>
 
 // vim: ft=cpp
-

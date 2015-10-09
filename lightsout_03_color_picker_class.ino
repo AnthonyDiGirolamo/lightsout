@@ -22,13 +22,13 @@ class ColorPicker {
 
     void set_control_colors() {
       if (!using_all_lights) {
-        strip.setPixelColor(board_light_index[7], 0xFF0000);
-        strip.setPixelColor(board_light_index[3], 0x040000);
-        strip.setPixelColor(board_light_index[6], 0x00FF00);
-        strip.setPixelColor(board_light_index[2], 0x000400);
-        strip.setPixelColor(board_light_index[5], 0x0000FF);
-        strip.setPixelColor(board_light_index[1], 0x000004);
-        strip.setPixelColor(board_light_index[0], 0xFF9000);
+        set_strip_with_gamma_correction(board_light_index[7], 0xFF0000);
+        set_strip_with_gamma_correction(board_light_index[3], 0x040000);
+        set_strip_with_gamma_correction(board_light_index[6], 0x00FF00);
+        set_strip_with_gamma_correction(board_light_index[2], 0x000400);
+        set_strip_with_gamma_correction(board_light_index[5], 0x0000FF);
+        set_strip_with_gamma_correction(board_light_index[1], 0x000004);
+        set_strip_with_gamma_correction(board_light_index[0], 0xFF9000);
         strip.show();
       }
     }
@@ -39,7 +39,7 @@ class ColorPicker {
       rand_green = (uint8_t) rand();
       rand_blue = (uint8_t) rand();
       if (!using_all_lights) {
-        strip.setPixelColor(board_light_index[4], Color(rand_red, rand_green, rand_blue));
+        set_strip_with_gamma_correction(board_light_index[4], Color(rand_red, rand_green, rand_blue));
         strip.show();
       }
     }
@@ -60,7 +60,7 @@ class ColorPicker {
       if (!fading) {
         uint32_t c = Color(red, green, blue);
         for (int i=15; i>= (using_all_lights ? 0 : 8) ; i--) {
-          strip.setPixelColor(board_light_index[i], c);
+          set_strip_with_gamma_correction(board_light_index[i], c);
         }
         strip.show();
       }
@@ -192,7 +192,7 @@ class ColorPicker {
             // (thats the i / strip.numPixels() part)
             // Then add in j which makes the colors go around per pixel
             // the % 96 is to make the wheel cycle around
-            strip.setPixelColor(fade_i, Wheel( ((fade_i * 256 / strip.numPixels()) + fade_j) % 256) );
+            set_strip_with_gamma_correction(fade_i, Wheel( ((fade_i * 256 / strip.numPixels()) + fade_j) % 256) );
           }
           strip.show();   // write all the pixels out
           fade_j++;

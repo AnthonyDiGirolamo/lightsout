@@ -14,6 +14,8 @@ MAX6954 alpha_board = MAX6954(DATAOUT, DATAIN, CLK, CS1, CS2);
 
 Adafruit_MCP23017 mcp;
 
+RTC_DS3231 RTC;
+
 // Number Constants
 
 #define RANDOMSEED1 31415926ul
@@ -31,6 +33,7 @@ char string_out[]      PROGMEM = "Out     ";
 char string_color[]    PROGMEM = "Color   ";
 char string_picker[]   PROGMEM = "Chooser ";
 char string_calc[]     PROGMEM = "Calc    ";
+char string_clock[]    PROGMEM = "Clock   ";
 
 // Lights Out
 char string_paused[]   PROGMEM = "Paused  ";
@@ -54,6 +57,16 @@ char string_fade[]     PROGMEM = "Rainbow ";
 char string_full[]     PROGMEM = "Full    ";
 char string_half[]     PROGMEM = "Half    ";
 char string_saved[]    PROGMEM = "Saved   ";
+
+// Clock
+char string_mon[]   PROGMEM = "Monday  ";
+char string_tue[]   PROGMEM = "Tuesday ";
+char string_wed[]   PROGMEM = "Wednesday";
+char string_thu[]   PROGMEM = "Thursday";
+char string_fri[]   PROGMEM = "Friday  ";
+char string_sat[]   PROGMEM = "Saturday";
+char string_sun[]   PROGMEM = "Sunday  ";
+char* string_days[] PROGMEM = {string_sun, string_mon, string_tue, string_wed, string_thu, string_fri, string_sat};
 
 #define MENU_DELAY 1000
 
@@ -394,5 +407,23 @@ obase=16;ibase=2;
 0111
 
 */
+
+prog_uint8_t gamma[] = {
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
+    1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,
+    2,  3,  3,  3,  3,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5,  5,
+    5,  6,  6,  6,  6,  7,  7,  7,  7,  8,  8,  8,  9,  9,  9, 10,
+   10, 10, 11, 11, 11, 12, 12, 13, 13, 13, 14, 14, 15, 15, 16, 16,
+   17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 24, 24, 25,
+   25, 26, 27, 27, 28, 29, 29, 30, 31, 32, 32, 33, 34, 35, 35, 36,
+   37, 38, 39, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 50,
+   51, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 66, 67, 68,
+   69, 70, 72, 73, 74, 75, 77, 78, 79, 81, 82, 83, 85, 86, 87, 89,
+   90, 92, 93, 95, 96, 98, 99,101,102,104,105,107,109,110,112,114,
+  115,117,119,120,122,124,126,127,129,131,133,135,137,138,140,142,
+  144,146,148,150,152,154,156,158,160,162,164,167,169,171,173,175,
+  177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
+  215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
 // vim: ft=cpp

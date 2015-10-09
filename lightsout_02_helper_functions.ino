@@ -9,6 +9,14 @@ uint32_t Color(byte r, byte g, byte b) {
   return c;
 }
 
+void set_strip_with_gamma_correction(uint16_t index, uint32_t color) {
+  strip.setPixelColor(index, color);
+  // strip.setPixelColor(index,
+  //                     Color(gamma[ (uint8_t) ((color >> 16) & 0xFF) ],
+  //                           gamma[ (uint8_t) ((color >> 8) & 0xFF) ],
+  //                           gamma[ (uint8_t) (color & 0xFF) ] ) );
+}
+
 //Input a value 0 to 255 to get a color value.
 //The colours are a transition r - g -b - back to r
 uint32_t Wheel(byte WheelPos) {
@@ -27,7 +35,7 @@ void colorWipe(uint32_t c, uint8_t wait) {
   int i;
 
   for (i=0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, c);
+      set_strip_with_gamma_correction(i, c);
       strip.show();
       delay(wait);
   }
@@ -42,7 +50,7 @@ void rainbowCycle(uint8_t wait) {
       // (thats the i / strip.numPixels() part)
       // Then add in j which makes the colors go around per pixel
       // the % 96 is to make the wheel cycle around
-      strip.setPixelColor(spiral_light_index[i], Wheel( ((i * 256 / strip.numPixels()) + j) % 256) );
+      set_strip_with_gamma_correction(spiral_light_index[i], Wheel( ((i * 256 / strip.numPixels()) + j) % 256) );
     }
     strip.show();   // write all the pixels out
     delay(wait);
@@ -70,7 +78,7 @@ void print_16_bits(uint16_t n) {
   char s[32];
   sprintf(s, "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",
     (n & 0x08000 ? 1 : 0), \
-    (n & 0x04000 ? 1 : 0), \
+    (n & 0x04000 ? 1 : s), \
     (n & 0x02000 ? 1 : 0), \
     (n & 0x01000 ? 1 : 0), \
     (n & 0x0800 ? 1 : 0), \
@@ -162,7 +170,7 @@ void print_board(uint16_t board, uint32_t lit_color) {
   uint16_t lit = 0;
   for(int i=15; i>=0; i--) {
     lit = (board & space_masks[i]) >> i;
-    strip.setPixelColor(board_light_index[i], (lit ? lit_color : lights_out_color_schemes[current_scheme+1]));
+    set_strip_with_gamma_correction(board_light_index[i], (lit ? lit_color : lights_out_color_schemes[current_scheme+1]));
   }
   strip.show();
 }

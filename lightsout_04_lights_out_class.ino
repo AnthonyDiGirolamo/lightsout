@@ -108,7 +108,7 @@ class LightsOut {
       uint16_t lit = 0;
       for(int i=15; i>=0; i--) {
         lit = (current_board_solution & space_masks[i]) >> i;
-        strip.setPixelColor(board_light_index[i], (lit ? lights_out_color_schemes[current_scheme+2] : lights_out_color_schemes[current_scheme+3]));
+        set_strip_with_gamma_correction(board_light_index[i], (lit ? lights_out_color_schemes[current_scheme+2] : lights_out_color_schemes[current_scheme+3]));
       }
       strip.show();
     }
@@ -117,7 +117,7 @@ class LightsOut {
       uint16_t lit = 0;
       for(int i=15; i>=0; i--) {
         lit = (current_board & space_masks[i]) >> i;
-        strip.setPixelColor(board_light_index[i], (lit ? lit_color : lights_out_color_schemes[current_scheme+1]));
+        set_strip_with_gamma_correction(board_light_index[i], (lit ? lit_color : lights_out_color_schemes[current_scheme+1]));
       }
       strip.show();
     }
@@ -150,7 +150,7 @@ class LightsOut {
       colorWipe(main_menu_color_schemes[current_scheme], 0);
       // Set Dim Colors
       for (int x=0; x<5; x++)
-        strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
+        set_strip_with_gamma_correction(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
       strip.show();
       delay(1000);
 
@@ -183,10 +183,10 @@ class LightsOut {
 
           // Set Dim Colors
           for (int x=0; x<5; x++)
-            strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
+            set_strip_with_gamma_correction(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
 
           // Highlight Current Menu Option
-          strip.setPixelColor(board_light_index[16-i], main_menu_color_schemes[current_scheme+i]);
+          set_strip_with_gamma_correction(board_light_index[16-i], main_menu_color_schemes[current_scheme+i]);
           strip.show();
 
           i++;
@@ -313,4 +313,3 @@ class LightsOut {
 };
 
 // vim: ft=cpp
-

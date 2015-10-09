@@ -1,5 +1,6 @@
 void setup() {
-  Serial.begin(9600);
+  /* Serial.begin(9600); */
+  /* Serial.begin(57600); */
 
   // Setup 16-segment display
   alpha_board.begin();
@@ -8,6 +9,21 @@ void setup() {
   // Setup RGB Strip
   strip.begin();
   strip.show();
+
+  Wire.begin();
+  RTC.begin();
+  if (! RTC.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    RTC.adjust(DateTime(__DATE__, __TIME__));
+  }
+
+  DateTime now = RTC.now();
+  DateTime compiled = DateTime(__DATE__, __TIME__);
+  if (now.unixtime() < compiled.unixtime()) {
+    //Serial.println("RTC is older than compile time!  Updating");
+    RTC.adjust(DateTime(__DATE__, __TIME__));
+  }
 
   // Setup port expander
   mcp.begin();
@@ -52,8 +68,8 @@ void main_menu() {
 
   colorWipe(main_menu_color_schemes[current_scheme], 0);
   // Set Dim Colors
-  for (int x=0; x<2; x++)
-    strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
+  for (int x=0; x<3; x++)
+    set_strip_with_gamma_correction(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
   strip.show();
 
   // Animation here
@@ -74,28 +90,28 @@ void main_menu() {
     // if MENU_DELAY time has elapsed
     if (millis() - time > MENU_DELAY) {
       if (i == 1) {
+        max_print_progmem(string_clock, 0, 0);
+        max_print_progmem(string_empty, 1, 0);
+      }
+      else if (i == 2) {
         max_print_progmem(string_lights, 0, 0);
         max_print_progmem(string_out, 1, 0);
       }
-      else if (i == 2) {
+      else if (i == 3) {
         max_print_progmem(string_color, 0, 0);
         max_print_progmem(string_picker, 1, 0);
       }
-      //else if (i == 3) {
-        //max_print_progmem(string_calc, 0, 0);
-        //max_print_progmem(string_empty, 1, 0);
-      //}
 
       // Set Dim Colors
-      for (int x=0; x<2; x++)
-        strip.setPixelColor(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
+      for (int x=0; x<3; x++)
+        set_strip_with_gamma_correction(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
 
       // Highlight Current Menu Option
-      strip.setPixelColor(board_light_index[16-i], main_menu_color_schemes[current_scheme+i]);
+      set_strip_with_gamma_correction(board_light_index[16-i], main_menu_color_schemes[current_scheme+i]);
       strip.show();
 
       i++;
-      if (i>2)
+      if (i>3)
         i=1;
       time = millis();
     }
@@ -104,10 +120,14 @@ void main_menu() {
     button = read_buttons();
     if (button >= 0) {
       if (button == 15) {
+        Clock clock = Clock();
+        clock.begin();
+      }
+      else if (button == 14) {
         LightsOut game = LightsOut();
         game.begin();
       }
-      else if (button == 14) {
+      else if (button == 13) {
         ColorPicker cp = ColorPicker();
         cp.begin();
       }
