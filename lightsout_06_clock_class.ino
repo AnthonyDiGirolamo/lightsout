@@ -33,7 +33,7 @@ class Clock {
       row_function[0] = &Clock::display_24hr_time;
       /* row_function[1] = &Clock::display_mmdd_weekday_date; */
       row_function[1] = &Clock::display_hourglass;
-      individual_segment_mode(1);
+      /* individual_segment_mode(1); */
     }
 
     void update_time() {
@@ -142,27 +142,36 @@ class Clock {
 
     void display_hourglass(uint8_t row) {
       write = row == 0 ? &MAX6954::write_chip1 : &MAX6954::write_chip2;
-
+      (alpha_board.*write)(0x01, B00000000);
 
       uint8_t frame = 0;
-      uint8_t current_second = 0;
-      uint8_t start = 4;
-      uint8_t stop = 8;
-      if (minute % 2 == 0) { // even
+      uint8_t start;
+      uint8_t stop;
+      if (minute % 2 == 0) { // odd
         start = 0;
         stop = 4;
-      }
-
-      for(index=start; index<stop; index++) {
-        if (second/15 > index) {
+        for(index=4; index<8; index++) {
+          (alpha_board.*write)(0x20+index, B00000000);
+          (alpha_board.*write)(0x28+index, B00000000);
+        }
+      } else {
+        start = 4;
+        stop = 8;
+        for(index=0; index<4; index++) {
           (alpha_board.*write)(0x20+index, B10111111);
           (alpha_board.*write)(0x28+index, B11111111);
         }
-        else if (second/15 == index) {
+      }
+
+      for(index=start; index<stop; index++) {
+        if (second/15 > index%4) {
+          (alpha_board.*write)(0x20+index, B10111111);
+          (alpha_board.*write)(0x28+index, B11111111);
+        }
+        else if (second/15 == index%4) {
+          (alpha_board.*write)(0x20+index, B00000000);
+          (alpha_board.*write)(0x28+index, B00000000);
           for (frame=0; frame<second%15; frame++) {
-            (alpha_board.*write)(0x20+index+animation_hourglass[frame][0], animation_hourglass[frame][1]);
-          }
-          for (frame=second%15; frame<16; frame++) {
             (alpha_board.*write)(0x20+index+animation_hourglass[frame][0], animation_hourglass[frame][1]);
           }
         }
