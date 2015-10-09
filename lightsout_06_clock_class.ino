@@ -2,9 +2,9 @@ class Clock {
   public:
     char buffer[20];
     int button;
-    uint8_t row_mode[2];
-    /* void (*row_one_mode)(uint8_t); */
-    /* void (*row_two_mode)(uint8_t); */
+
+    typedef void (Clock::*clock_member_function)(uint8_t row);
+    clock_member_function row_function[2];
 
     DateTime now;
     uint16_t year;
@@ -18,12 +18,10 @@ class Clock {
     Clock() {
       max_print_progmem(string_empty, 0, 0);
       max_print_progmem(string_empty, 1, 0);
-      row_mode[0] = 0;
-      row_mode[1] = 0;
       update_time();
       update_temp();
-      /* row_one_mode = display_24hr_time(0); */
-      /* row_two_mode = display_mmdd_weekday_date(1); */
+      row_function[0] = &Clock::display_24hr_time;
+      row_function[1] = &Clock::display_mmdd_weekday_date;
     }
 
     void update_time() {
@@ -35,19 +33,6 @@ class Clock {
       minute  = now.minute();
       second  = now.second();
       weekday = now.dayOfWeek();
-
-      /* Serial.print(year, DEC); */
-      /* Serial.print('/'); */
-      /* Serial.print(month, DEC); */
-      /* Serial.print('/'); */
-      /* Serial.print(day, DEC); */
-      /* Serial.print(' '); */
-      /* Serial.print(hour, DEC); */
-      /* Serial.print(':'); */
-      /* Serial.print(minute, DEC); */
-      /* Serial.print(':'); */
-      /* Serial.print(second, DEC); */
-      /* Serial.println(); */
     }
 
     void update_temp() {
@@ -96,10 +81,8 @@ class Clock {
         if (millis() - time > MENU_DELAY) {
           time = millis();
           update_time();
-          display_24hr_time(0);
-          display_mmdd_weekday_date(1);
-          /* row_one_mode(0); */
-          /* row_two_mode(1); */
+          (this->*row_function[0])(0);
+          (this->*row_function[1])(1);
         }
 
         /* Serial.print(" since midnight 1/1/1970 = "); */
@@ -123,7 +106,6 @@ class Clock {
         // Serial.print(':');
         // Serial.print(future.second(), DEC);
         // Serial.println();
-
 
         button = read_buttons();
 
