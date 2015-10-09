@@ -2,26 +2,38 @@ class Clock {
   public:
     char buffer[20];
     int button;
+    int index;
 
     typedef void (Clock::*clock_member_function)(uint8_t row);
     clock_member_function row_function[2];
+
+    alpha_board_method write;
 
     DateTime now;
     uint16_t year;
     uint8_t month;
     uint8_t day;
     uint8_t hour;
+    uint8_t hour12;
     uint8_t minute;
     uint8_t second;
     uint8_t weekday;
 
+    uint32_t color;
+    uint8_t r_index;
+    uint8_t g_index;
+    uint8_t b_index;
+
     Clock() {
+      colorWipe(Color(0,0,0), 0);
       max_print_progmem(string_empty, 0, 0);
       max_print_progmem(string_empty, 1, 0);
       update_time();
       update_temp();
       row_function[0] = &Clock::display_24hr_time;
-      row_function[1] = &Clock::display_mmdd_weekday_date;
+      /* row_function[1] = &Clock::display_mmdd_weekday_date; */
+      row_function[1] = &Clock::display_hourglass;
+      individual_segment_mode(1);
     }
 
     void update_time() {
@@ -30,13 +42,51 @@ class Clock {
       month   = now.month();
       day     = now.day();
       hour    = now.hour();
+      hour12  = hour % 12;
+      if (hour == 12)
+        hour12 = 12;
       minute  = now.minute();
       second  = now.second();
       weekday = now.dayOfWeek();
     }
 
+    void update_lights() {
+      color = hour > 12 ? hour_colors[1] : hour_colors[0];
+      r_index = (uint8_t) ((color >> 16) & 0xFF);
+      g_index = (uint8_t) ((color >> 8)  & 0xFF);
+      b_index = (uint8_t) ((color)       & 0xFF);
+
+      for (index = 0; index < hour12; index++) {
+        strip.setPixelColor(board_light_index[11-index],
+                            gamma[ r_index ],
+                            gamma[ g_index ],
+                            gamma[ b_index ] );
+      }
+      strip.setPixelColor(board_light_index[11-hour12],
+                          gamma[ (r_index/60) * minute ],
+                          gamma[ (g_index/60) * minute ],
+                          gamma[ (b_index/60) * minute ] );
+
+      color = hour > 12 ? minute_colors[1] : minute_colors[0];
+      r_index = (uint8_t) ((color >> 16) & 0xFF);
+      g_index = (uint8_t) ((color >> 8)  & 0xFF);
+      b_index = (uint8_t) ((color)       & 0xFF);
+
+      for (index = 0; index < (minute/15); index++) {
+        strip.setPixelColor(board_light_index[15-index],
+                            gamma[ r_index ],
+                            gamma[ g_index ],
+                            gamma[ b_index ] );
+      }
+      strip.setPixelColor(board_light_index[15-(minute/15)],
+                          gamma[ (r_index/15) * (minute%15) ],
+                          gamma[ (g_index/15) * (minute%15) ],
+                          gamma[ (b_index/15) * (minute%15) ] );
+      strip.show();
+    }
+
     void update_temp() {
-      // RTC.forceTempConv(true); //DS3231 does this every 64 seconds, we are simply testing the function here
+      // RTC.forceTempConv(true); // DS3231 does this every 64 seconds
       float temp_float  = RTC.getTempAsFloat();
       int16_t temp_word = RTC.getTempAsWord();
       int8_t temp_hbyte = temp_word >> 8;
@@ -50,6 +100,11 @@ class Clock {
       /* Serial.print("."); */
       /* Serial.print(temp_lbyte, DEC); */
       /* Serial.println(); */
+    }
+
+    void display_12hr_time(uint8_t row) {
+      sprintf(buffer, "%2u.%02u  %cm", hour12, minute, hour > 12 ? 'p' : 'a');
+      alpha_board.write_string(buffer, row, 0);
     }
 
     void display_24hr_time(uint8_t row) {
@@ -73,6 +128,62 @@ class Clock {
       alpha_board.write_string(buffer, row, 0);
     }
 
+    void individual_segment_mode(uint8_t row) {
+      write = row == 0 ? &MAX6954::write_chip1 : &MAX6954::write_chip2;
+      // Decode mode enabled
+      // alpha_board.write_chip1(0x01, B11111111);
+      (alpha_board.*write)(0x01, B00000000);
+
+      // Turn off all segments
+      for (int i=0x20; i<=0x2F; i++) {
+        (alpha_board.*write)(i, B00000000);
+      }
+    }
+
+    void display_hourglass(uint8_t row) {
+      write = row == 0 ? &MAX6954::write_chip1 : &MAX6954::write_chip2;
+
+
+      uint8_t frame = 0;
+      uint8_t current_second = 0;
+      uint8_t start = 4;
+      uint8_t stop = 8;
+      if (minute % 2 == 0) { // even
+        start = 0;
+        stop = 4;
+      }
+
+      for(index=start; index<stop; index++) {
+        if (second/15 > index) {
+          (alpha_board.*write)(0x20+index, B10111111);
+          (alpha_board.*write)(0x28+index, B11111111);
+        }
+        else if (second/15 == index) {
+          for (frame=0; frame<second%15; frame++) {
+            (alpha_board.*write)(0x20+index+animation_hourglass[frame][0], animation_hourglass[frame][1]);
+          }
+          for (frame=second%15; frame<16; frame++) {
+            (alpha_board.*write)(0x20+index+animation_hourglass[frame][0], animation_hourglass[frame][1]);
+          }
+        }
+        else {
+          (alpha_board.*write)(0x20+index, B00000000);
+          (alpha_board.*write)(0x28+index, B00000000);
+        }
+        /* (alpha_board.*write)(index, B01111111); */
+      }
+
+      /* for(index=0x20; index<0x28; index++) { */
+      /*   // Turn on all segments of digit i */
+      /*   (alpha_board.*write)(index, B01111111); */
+      /*   (alpha_board.*write)(index+8, B01111111); */
+      /* } */
+
+      /* for (i=0x20; i<=0x2F; i++) { */
+      /*   (alpha_board.*write)(i, (uint8_t) random(0, 256)); */
+      /* } */
+    }
+
     void begin() {
       delay(1000);
 
@@ -81,6 +192,7 @@ class Clock {
         if (millis() - time > MENU_DELAY) {
           time = millis();
           update_time();
+          /* update_lights(); */
           (this->*row_function[0])(0);
           (this->*row_function[1])(1);
         }

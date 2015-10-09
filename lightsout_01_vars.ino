@@ -11,6 +11,7 @@
 Adafruit_WS2801 strip = Adafruit_WS2801(16, STRIP_DATA, STRIP_CLK);
 
 MAX6954 alpha_board = MAX6954(DATAOUT, DATAIN, CLK, CS1, CS2);
+typedef void (MAX6954::*alpha_board_method)(byte address, byte value);
 
 Adafruit_MCP23017 mcp;
 
@@ -67,6 +68,33 @@ char string_fri[]   PROGMEM = "Friday  ";
 char string_sat[]   PROGMEM = "Saturday";
 char string_sun[]   PROGMEM = "Sunday  ";
 char* string_days[] PROGMEM = {string_sun, string_mon, string_tue, string_wed, string_thu, string_fri, string_sat};
+
+prog_uint32_t minute_colors[] = {
+  0x00CCFF,
+  0xFFCC00,
+};
+prog_uint32_t hour_colors[] = {
+  0x3366FF,
+  0xFF6600,
+};
+
+prog_uint8_t animation_hourglass[15][2] = {
+  {0, B00000010},
+  {0, B00000110},
+  {0, B10000110},
+  {0, B10001110},
+  {0, B10011110},
+  {0, B10111110},
+  {8, B00000001},
+  {8, B00000011},
+  {8, B00000111},
+  {8, B01000111},
+  {0, B10111111},
+  {8, B01100111},
+  {8, B01110111},
+  {8, B01111111},
+  {8, B11111111},
+};
 
 #define MENU_DELAY 1000
 

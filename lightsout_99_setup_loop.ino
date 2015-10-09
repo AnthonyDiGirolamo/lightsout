@@ -44,7 +44,6 @@ void main_menu() {
   int i = 1, button = 0;
   unsigned long time = millis();
 
-
   max_print_progmem(string_lights, 0, 0);
   max_print_progmem(string_out, 1, 0);
 
@@ -122,6 +121,7 @@ void main_menu() {
       if (button == 15) {
         Clock clock = Clock();
         clock.begin();
+        alpha_board.enable_decode_mode();
       }
       else if (button == 14) {
         LightsOut game = LightsOut();
