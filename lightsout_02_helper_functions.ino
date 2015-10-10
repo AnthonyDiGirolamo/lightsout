@@ -181,8 +181,8 @@ void check_switches()
   current_button_state = mcp.readGPIOAB(); // will return 16 bits ie 1111110111111111
                                            // where a 0 shows a button being pressed
   for (i=0; i<16; i++) {
-    currentstate    = (((~current_button_state) >> i) & 1);
-    previousstate   = (((~previous_button_state) >> i) & 1);
+    currentstate  = (((~current_button_state)  >> i) & 1);
+    previousstate = (((~previous_button_state) >> i) & 1);
 
     if (currentstate == previousstate) { // if a button was really pressed/released
       if ((currently_pressed[i] == 0) && (currentstate == 1)) {
