@@ -70,7 +70,7 @@ char string_sun[]   PROGMEM = "Sunday  ";
 char* string_days[] PROGMEM = {string_sun, string_mon, string_tue, string_wed, string_thu, string_fri, string_sat};
 
 prog_uint32_t minute_colors[] = {
-  0x00CCFF,
+  0x00FFFF,
   0xFFCC00,
 };
 prog_uint32_t hour_colors[] = {

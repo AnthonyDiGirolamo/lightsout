@@ -1,11 +1,15 @@
+#define CLOCK_FUNCTION_COUNT 9
+
 class Clock {
   public:
     char buffer[20];
-    int button;
     int index;
 
     typedef void (Clock::*clock_member_function)(uint8_t row);
-    clock_member_function row_function[2];
+    clock_member_function all_functions[CLOCK_FUNCTION_COUNT];
+
+    uint8_t row_one_mode;
+    uint8_t row_two_mode;
 
     alpha_board_method write;
 
@@ -28,13 +32,22 @@ class Clock {
       colorWipe(Color(0,0,0), 0);
       max_print_progmem(string_empty, 0, 0);
       max_print_progmem(string_empty, 1, 0);
+
       update_time();
-      update_temp();
-      /* row_function[0] = &Clock::display_12hr_time; */
-      row_function[0] = &Clock::display_24hr_weekday_time;
-      /* row_function[1] = &Clock::display_mmdd_weekday_date; */
-      row_function[1] = &Clock::display_hourglass;
-      /* individual_segment_mode(1); */
+      randomSeed(now.unixtime());
+
+      all_functions[0] = &Clock::display_12hr;
+      all_functions[1] = &Clock::display_24hr;
+      all_functions[2] = &Clock::display_24hr_with_seconds;
+      all_functions[3] = &Clock::display_24hr_with_weekday;
+      all_functions[4] = &Clock::display_mmddyy;
+      all_functions[5] = &Clock::display_mmdd_with_weekday;
+      all_functions[6] = &Clock::display_mmddyyyy;
+      all_functions[7] = &Clock::display_hourglass;
+      all_functions[8] = &Clock::display_noise;
+
+      row_one_mode = 2;
+      row_two_mode = 5;
     }
 
     void update_time() {
@@ -52,6 +65,10 @@ class Clock {
     }
 
     void update_lights() {
+      // set all colors to off
+      for (index = 0; index < 16; index++)
+        strip.setPixelColor(board_light_index[index], 0x000000);
+
       color = hour > 12 ? hour_colors[1] : hour_colors[0];
       r_index = (uint8_t) ((color >> 16) & 0xFF);
       g_index = (uint8_t) ((color >> 8)  & 0xFF);
@@ -63,10 +80,10 @@ class Clock {
                             gamma[ g_index ],
                             gamma[ b_index ] );
       }
-      strip.setPixelColor(board_light_index[11-hour12],
-                          gamma[ (r_index/60) * minute ],
-                          gamma[ (g_index/60) * minute ],
-                          gamma[ (b_index/60) * minute ] );
+      // strip.setPixelColor(board_light_index[11-hour12],
+      //                     gamma[ (r_index/60) * minute ],
+      //                     gamma[ (g_index/60) * minute ],
+      //                     gamma[ (b_index/60) * minute ] );
 
       color = hour > 12 ? minute_colors[1] : minute_colors[0];
       r_index = (uint8_t) ((color >> 16) & 0xFF);
@@ -86,70 +103,62 @@ class Clock {
       strip.show();
     }
 
-    void update_temp() {
-      // RTC.forceTempConv(true); // DS3231 does this every 64 seconds
-      float temp_float  = RTC.getTempAsFloat();
-      int16_t temp_word = RTC.getTempAsWord();
-      int8_t temp_hbyte = temp_word >> 8;
-      int8_t temp_lbyte = temp_word &= 0x00FF;
+    // void update_temp() {
+    //   // RTC.forceTempConv(true); // DS3231 does this every 64 seconds
+    //   float temp_float  = RTC.getTempAsFloat();
+    //   int16_t temp_word = RTC.getTempAsWord();
+    //   int8_t temp_hbyte = temp_word >> 8;
+    //   int8_t temp_lbyte = temp_word &= 0x00FF;
+    //   // Serial.print("Temp as float: ");
+    //   // Serial.print(temp_float, DEC);
+    //   // Serial.println();
+    //   // Serial.print("Temp as word: ");
+    //   // Serial.print(temp_hbyte, DEC);
+    //   // Serial.print(".");
+    //   // Serial.print(temp_lbyte, DEC);
+    //   // Serial.println();
+    // }
 
-      /* Serial.print("Temp as float: "); */
-      /* Serial.print(temp_float, DEC); */
-      /* Serial.println(); */
-      /* Serial.print("Temp as word: "); */
-      /* Serial.print(temp_hbyte, DEC); */
-      /* Serial.print("."); */
-      /* Serial.print(temp_lbyte, DEC); */
-      /* Serial.println(); */
-    }
-
-    void display_12hr_time(uint8_t row) {
+    void display_12hr(uint8_t row) {
       sprintf(buffer, "%2u.%02u  %cm", hour12, minute, hour > 12 ? 'p' : 'a');
       alpha_board.write_string(buffer, row, 0);
     }
 
-    void display_24hr_seconds_time(uint8_t row) {
-      sprintf(buffer, " %02u.%02u.%02u ", hour, minute, second);
-      alpha_board.write_string(buffer, row, 0);
-    }
-
-    void display_24hr_time(uint8_t row) {
+    void display_24hr(uint8_t row) {
       sprintf(buffer, "  %02u.%02u  ", hour, minute);
       alpha_board.write_string(buffer, row, 0);
     }
 
-    void display_24hr_weekday_time(uint8_t row) {
+    void display_24hr_with_seconds(uint8_t row) {
+      sprintf(buffer, " %02u.%02u.%02u ", hour, minute, second);
+      alpha_board.write_string(buffer, row, 0);
+    }
+
+    void display_24hr_with_weekday(uint8_t row) {
       sprintf(buffer, "%02u.%02u    ", hour, minute);
       strcpy_P(&buffer[6], (char*)pgm_read_word( &(string_days[weekday]) ));
       alpha_board.write_string(buffer, row, 0);
     }
 
-    void display_mmddyyyy_date(uint8_t row) {
-      sprintf(buffer, "%02u.%02u.%04u", month, day, year);
-      alpha_board.write_string(buffer, row, 0);
-    }
-
-    void display_mmddyy_date(uint8_t row) {
+    void display_mmddyy(uint8_t row) {
       sprintf(buffer, "%02u/%02u/%02u", month, day, year % 1000);
       alpha_board.write_string(buffer, row, 0);
     }
 
-    void display_mmdd_weekday_date(uint8_t row) {
+    void display_mmddyyyy(uint8_t row) {
+      sprintf(buffer, "%02u.%02u.%04u", month, day, year);
+      alpha_board.write_string(buffer, row, 0);
+    }
+
+    void display_mmdd_with_weekday(uint8_t row) {
       sprintf(buffer, "%02u.%02u    ", month, day);
       strcpy_P(&buffer[6], (char*)pgm_read_word( &(string_days[weekday]) ));
       alpha_board.write_string(buffer, row, 0);
     }
 
-    void individual_segment_mode(uint8_t row) {
+    void enable_decode_mode(uint8_t row) {
       write = row == 0 ? &MAX6954::write_chip1 : &MAX6954::write_chip2;
-      // Decode mode enabled
-      // alpha_board.write_chip1(0x01, B11111111);
-      (alpha_board.*write)(0x01, B00000000);
-
-      // Turn off all segments
-      for (int i=0x20; i<=0x2F; i++) {
-        (alpha_board.*write)(i, B00000000);
-      }
+      (alpha_board.*write)(0x01, B11111111);
     }
 
     void display_hourglass(uint8_t row) {
@@ -191,38 +200,35 @@ class Clock {
           (alpha_board.*write)(0x20+index, B00000000);
           (alpha_board.*write)(0x28+index, B00000000);
         }
-        /* (alpha_board.*write)(index, B01111111); */
       }
+    }
 
-      /* for(index=0x20; index<0x28; index++) { */
-      /*   // Turn on all segments of digit i */
-      /*   (alpha_board.*write)(index, B01111111); */
-      /*   (alpha_board.*write)(index+8, B01111111); */
-      /* } */
-
-      /* for (i=0x20; i<=0x2F; i++) { */
-      /*   (alpha_board.*write)(i, (uint8_t) random(0, 256)); */
-      /* } */
+    void display_noise(uint8_t row) {
+      write = row == 0 ? &MAX6954::write_chip1 : &MAX6954::write_chip2;
+      (alpha_board.*write)(0x01, B00000000);
+      for (index=0x20; index<=0x2F; index++) {
+        (alpha_board.*write)(index, (uint8_t) random(0, 256));
+      }
     }
 
     void begin() {
-      delay(1000);
 
-      unsigned long time = millis() - MENU_DELAY;
+      unsigned long time = millis() - 1000;
       while (1) {
-        if (millis() - time > MENU_DELAY) {
+        // update the clock if one second has passed
+        if (millis() - time > 1000) {
           time = millis();
           update_time();
-          /* update_lights(); */
-          (this->*row_function[0])(0);
-          (this->*row_function[1])(1);
+          update_lights();
+          (this->*all_functions[row_one_mode])(0);
+          (this->*all_functions[row_two_mode])(1);
         }
 
-        /* Serial.print(" since midnight 1/1/1970 = "); */
-        /* Serial.print(now.unixtime()); */
-        /* Serial.print("s = "); */
-        /* Serial.print(now.unixtime() / 86400L); */
-        /* Serial.println("d"); */
+        // Serial.print(" since midnight 1/1/1970 = ");
+        // Serial.print(now.unixtime());
+        // Serial.print("s = ");
+        // Serial.print(now.unixtime() / 86400L);
+        // Serial.println("d");
 
         // // calculate a date which is 7 days and 30 seconds into the future
         // DateTime future (now.unixtime() + 7 * 86400L + 30);
@@ -240,79 +246,38 @@ class Clock {
         // Serial.print(future.second(), DEC);
         // Serial.println();
 
-        button = read_buttons();
+        // button = read_buttons();
+        check_switches();
 
-        if (button <= 31 && button >= 0) {
+        if (justreleased[3])
           break;
-          switch(button) {
-            case 7:
-            case 23:
-              // more red
-              /* if (red < 255) */
-                /* red++; */
-              break;
-            case 3:
-            case 19:
-              // less red
-              /* if (red > 0) */
-                /* red--; */
-              break;
-            case 6:
-            case 22:
-              // more green
-              /* if (green < 255) */
-                /* green++; */
-              break;
-            case 2:
-            case 18:
-              // less green
-              /* if (green > 0) */
-                /* green--; */
-              break;
-            case 5:
-            case 21:
-              // more blue
-              /* if (blue < 255) */
-                /* blue++; */
-              break;
-            case 1:
-            case 17:
-              // less blue
-              /* if (blue > 0) */
-                /* blue--; */
-              break;
-            case 4:
-            case 20:
-              // use random
-              /* use_random_color(); */
-              /* generate_random_color(); */
-              break;
-            case 0:
-            case 16:
-              /* toggle_fading(); */
-              break;
-            case 15:
-            case 14:
-            case 13:
-            case 12:
-            case 11:
-            case 10:
-            case 9:
-            case 8:
-              /* toggle_all_lights(); */
-              break;
-            case 28:
-              /* EEPROM_writeAnything(0, Color(red, green, blue)); */
-              /* max_print_progmem(string_saved, 0, 0); */
-              /* delay(500); */
-              break;
-          }
-          // extra delay to slow down fast presses
-          if (button == 16 || button == 0 || button == 4 || button == 20)
-            delay(250);
-          else
-            delay(100);
+
+        if (justpressed[15]) {
+          row_one_mode = (row_one_mode + 1) % CLOCK_FUNCTION_COUNT;
+          if (row_one_mode == 0)
+            enable_decode_mode(0);
         }
+        if (justpressed[11]) {
+          row_two_mode = (row_two_mode + 1) % CLOCK_FUNCTION_COUNT;
+          if (row_two_mode == 0)
+            enable_decode_mode(1);
+        }
+
+        // for (index=0; index<NUMBUTTONS; index++) {
+        //   if (justpressed[index]) {
+        //     Serial.print(index, DEC);
+        //     Serial.println(" Just pressed");
+        //   }
+        //   if (justreleased[index]) {
+        //     Serial.print(index, DEC);
+        //     Serial.println(" Just released");
+        //   }
+        //   if (currently_pressed[index]) {
+        //     Serial.print(index, DEC);
+        //     Serial.println(" currently pressed");
+        //   }
+        // }
+
       } // end while
     }
 };

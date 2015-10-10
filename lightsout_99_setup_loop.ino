@@ -1,6 +1,6 @@
 void setup() {
   /* Serial.begin(9600); */
-  /* Serial.begin(57600); */
+  Serial.begin(57600);
 
   // Setup 16-segment display
   alpha_board.begin();
@@ -10,8 +10,12 @@ void setup() {
   strip.begin();
   strip.show();
 
+  // Turn on I2C
   Wire.begin();
+
+  // Setup the RTC
   RTC.begin();
+
   if (! RTC.isrunning()) {
     Serial.println("RTC is NOT running!");
     // following line sets the RTC to the date & time this sketch was compiled
@@ -47,25 +51,8 @@ void main_menu() {
   max_print_progmem(string_lights, 0, 0);
   max_print_progmem(string_out, 1, 0);
 
-  // Test Lowercase (Individual Segment Control)
-  //alpha_board.disable_decode_mode();
-  //alpha_board.turn_off_individual_segments();
-  //alpha_board.individual_segment_test();
-  //max_print_progmem(string_lights, 0, 0, 1);
-  //max_print_progmem(string_out, 1, 0, 1);
-  //alpha_board.write_lowercase_string("Grumpy  wizards ",0,0);
-  //delay(2000);
-  //alpha_board.write_lowercase_string("make    toxic   ",0,0);
-  //delay(2000);
-  //alpha_board.write_lowercase_string("brew forthe     ",0,0);
-  //delay(2000);
-  //alpha_board.write_lowercase_string("evil    Queen   ",0,0);
-  //delay(2000);
-  //alpha_board.write_lowercase_string("and Jack        ",0,0);
-  //delay(2000);
-  //alpha_board.enable_decode_mode(); // Enable MAX6954 Built-in Font
-
   colorWipe(main_menu_color_schemes[current_scheme], 0);
+
   // Set Dim Colors
   for (int x=0; x<3; x++)
     set_strip_with_gamma_correction(board_light_index[15-x], main_menu_color_schemes_dim[current_scheme+1+x]);
@@ -115,29 +102,27 @@ void main_menu() {
       time = millis();
     }
 
-    // check for button press
-    button = read_buttons();
-    if (button >= 0) {
-      if (button == 15) {
-        Clock clock = Clock();
-        clock.begin();
-        alpha_board.enable_decode_mode();
-      }
-      else if (button == 14) {
-        LightsOut game = LightsOut();
-        game.begin();
-      }
-      else if (button == 13) {
-        ColorPicker cp = ColorPicker();
-        cp.begin();
-      }
-      //else if (button == 13) {
-        //Calc cal = Calc();
-        //cal.begin();
-      //}
+    check_switches();
+
+    if (justpressed[15]) {
+      Clock cm = Clock();
+      cm.begin();
+      delete &cm;
+      alpha_board.enable_decode_mode();
+      colorWipe(0x000000, 0);
     }
 
-  }
+    else if (justpressed[14]) {
+      LightsOut game = LightsOut();
+      game.begin();
+    }
+
+    else if (justpressed[13]) {
+      ColorPicker cp = ColorPicker();
+      cp.begin();
+    }
+
+  } // end while
 }
 
 void loop() {

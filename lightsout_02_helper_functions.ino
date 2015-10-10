@@ -93,9 +93,9 @@ void print_16_bits(uint16_t n) {
     (n & 0x04 ? 1 : 0), \
     (n & 0x02 ? 1 : 0), \
     (n & 0x01 ? 1 : 0));
-  /* Serial.println(s); */
-  alpha_board.write_string(s, 0, 0);
-  alpha_board.write_string(&s[8], 1, 0);
+  Serial.println(s);
+  /* alpha_board.write_string(s, 0, 0); */
+  /* alpha_board.write_string(&s[8], 1, 0); */
 }
 
 // void print_4_bits(uint16_t n) {
@@ -124,20 +124,20 @@ void print_16_bits(uint16_t n) {
 // If a button is being held, return button value + 16
 int read_buttons(uint8_t skip_delay = 0) {
   static unsigned long button_timer;
-  static uint16_t buttons1, buttons2;
+  static uint16_t current_button_state, previous_button_state;
 
   int index = -1;
-  buttons1 = mcp.readGPIOAB();
-  //print_16_bits(buttons1);
-  if ((~buttons1) > 0) { // if there is a button being pressed
+  current_button_state = mcp.readGPIOAB();
+  if ((~current_button_state) > 0) { // if there is a button being pressed
     for (int i=0; i<16; i++) {
-      if ( (((~buttons1) >> i) & 1) == 1 ) {
+      if ( (((~current_button_state) >> i) & 1) == 1 ) {
         index = i;
         break;
       }
     }
-    if (buttons1 != buttons2) { // a different button from last time
-      buttons2 = buttons1;
+    if (current_button_state != previous_button_state) { // a different button from last time
+      /* print_16_bits(current_button_state); */
+      previous_button_state = current_button_state;
       button_timer = millis();
       if (!skip_delay)
         delay(40); // to prevent button bouncing
@@ -152,6 +152,49 @@ int read_buttons(uint8_t skip_delay = 0) {
     button_timer = millis();
   }
   return index;
+}
+
+#define NUMBUTTONS 16
+#define DEBOUNCE 10  // button debounce time, how many ms to debounce, 5+ ms is usually plenty
+uint8_t currently_pressed[NUMBUTTONS], justpressed[NUMBUTTONS], justreleased[NUMBUTTONS];
+
+void check_switches()
+{
+  static unsigned long button_timer = millis();
+  static uint16_t current_button_state, previous_button_state;
+  uint8_t i;
+
+  // clear out just indicators, they should only fire once per check_switches call
+  for (i=0; i<16; i++) {
+    justreleased[i] = 0;
+    justpressed[i]  = 0;
+  }
+
+  if ((button_timer + DEBOUNCE) > millis()) // not enough time has passed to debounce
+    return;
+
+  // ok we have waited DEBOUNCE milliseconds, lets reset the timer
+  button_timer = millis();
+
+  uint8_t currentstate, previousstate;
+
+  current_button_state = mcp.readGPIOAB(); // will return 16 bits ie 1111110111111111
+                                           // where a 0 shows a button being pressed
+  for (i=0; i<16; i++) {
+    currentstate    = (((~current_button_state) >> i) & 1);
+    previousstate   = (((~previous_button_state) >> i) & 1);
+
+    if (currentstate == previousstate) { // if a button was really pressed/released
+      if ((currently_pressed[i] == 0) && (currentstate == 1)) {
+        justpressed[i] = 1;
+      }
+      else if ((currently_pressed[i] == 1) && (currentstate == 0)) {
+        justreleased[i] = 1;
+      }
+      currently_pressed[i] = currentstate;
+    }
+    previous_button_state = current_button_state;
+  }
 }
 
 void print_time(unsigned long start, unsigned long end, int row = 0, int col = 0) {
