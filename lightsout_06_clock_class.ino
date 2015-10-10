@@ -4,10 +4,12 @@ class Clock {
 public:
   char buffer[20];
   int index;
+  unsigned long time;
 
   typedef void (Clock::*clock_member_function)(uint8_t row);
   clock_member_function all_functions[CLOCK_FUNCTION_COUNT];
 
+  uint8_t lights_enabled;
   uint8_t row_one_mode;
   uint8_t row_two_mode;
 
@@ -28,8 +30,13 @@ public:
   uint8_t g_index;
   uint8_t b_index;
 
+  uint16_t ambient_light;
+  uint16_t alpha_brightness;
+  uint16_t light_brightness;
+
   Clock() {
-    colorWipe(Color(0,0,0), 0);
+    alpha_board.enable_global_segment_brightness();
+    colorWipe(0x000000, 0);
     max_print_progmem(string_empty, 0, 0);
     max_print_progmem(string_empty, 1, 0);
 
@@ -46,6 +53,9 @@ public:
     all_functions[7] = &Clock::display_hourglass;
     all_functions[8] = &Clock::display_noise;
 
+    ambient_light = 400;
+
+    lights_enabled = 1;
     row_one_mode = 2;
     row_two_mode = 5;
   }
@@ -86,6 +96,11 @@ public:
   }
 
   void update_lights() {
+    if (!lights_enabled) {
+      colorWipe(0x000000,0);
+      return;
+    }
+
     // set all colors to off
     for (index = 0; index < 16; index++)
       strip.setPixelColor(board_light_index[index], 0x000000);
@@ -232,17 +247,34 @@ public:
     }
   }
 
-  void begin() {
+  void update_ambient_light() {
+    ambient_light = (2*ambient_light + analogRead(LIGHT_SENSOR_PIN))/3;
+    // Serial.println(ambient_light);
+    int brightness = constrain(map(ambient_light, 100, 400, 0, 15), 0, 15);
+    // Serial.println(brightness);
 
-    unsigned long time = millis() - 1000;
+    if (brightness != alpha_brightness) {
+      alpha_brightness = brightness;
+      alpha_board.set_global_brightness(alpha_brightness);
+    }
+  }
+
+  void update_board() {
+    update_time();
+    update_lights();
+    (this->*all_functions[row_one_mode])(0);
+    (this->*all_functions[row_two_mode])(1);
+  }
+
+  void begin() {
+    time = millis() - 1000;
     while (1) {
-      // update the clock if one second has passed
+      // update if one second has passed
       if (millis() - time > 1000) {
         time = millis();
-        update_time();
-        update_lights();
-        (this->*all_functions[row_one_mode])(0);
-        (this->*all_functions[row_two_mode])(1);
+        update_board();
+        if (second % 2 == 0)
+          update_ambient_light();
       }
 
       // Serial.print(" since midnight 1/1/1970 = ");
@@ -267,7 +299,6 @@ public:
       // Serial.print(future.second(), DEC);
       // Serial.println();
 
-      // button = read_buttons();
       check_switches();
 
       if (justreleased[3])
@@ -277,11 +308,19 @@ public:
         row_one_mode = (row_one_mode + 1) % CLOCK_FUNCTION_COUNT;
         if (row_one_mode == 0)
           enable_decode_mode(0);
+        update_board();
       }
+
       if (justpressed[11]) {
         row_two_mode = (row_two_mode + 1) % CLOCK_FUNCTION_COUNT;
         if (row_two_mode == 0)
           enable_decode_mode(1);
+        update_board();
+      }
+
+      if (justpressed[7]) {
+        lights_enabled = lights_enabled ^ 1;
+        update_board();
       }
 
       // for (index=0; index<NUMBUTTONS; index++) {

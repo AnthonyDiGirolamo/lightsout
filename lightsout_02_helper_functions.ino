@@ -158,8 +158,7 @@ int read_buttons(uint8_t skip_delay = 0) {
 #define DEBOUNCE 10  // button debounce time, how many ms to debounce, 5+ ms is usually plenty
 uint8_t currently_pressed[NUMBUTTONS], justpressed[NUMBUTTONS], justreleased[NUMBUTTONS];
 
-void check_switches()
-{
+void check_switches() {
   static unsigned long button_timer = millis();
   static uint16_t current_button_state, previous_button_state;
   uint8_t i;

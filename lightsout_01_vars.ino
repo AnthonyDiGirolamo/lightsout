@@ -17,6 +17,8 @@ Adafruit_MCP23017 mcp;
 
 RTC_DS3231 RTC;
 
+#define LIGHT_SENSOR_PIN 3
+
 // Number Constants
 
 #define RANDOMSEED1 31415926ul
@@ -68,6 +70,16 @@ char string_fri[]   PROGMEM = "Friday  ";
 char string_sat[]   PROGMEM = "Saturday";
 char string_sun[]   PROGMEM = "Sunday  ";
 char* string_days[] PROGMEM = {string_sun, string_mon, string_tue, string_wed, string_thu, string_fri, string_sat};
+
+char string_moon0[] PROGMEM = "New Moon";
+char string_moon1[] PROGMEM = "    Moon";
+char string_moon2[] PROGMEM = "HalfMoon";
+char string_moon3[] PROGMEM = "    Moon";
+char string_moon4[] PROGMEM = "FullMoon";
+char string_moon5[] PROGMEM = "    Moon";
+char string_moon6[] PROGMEM = "HalfMoon";
+char string_moon7[] PROGMEM = "    Moon";
+char* string_moon_phases[] PROGMEM = {string_moon0, string_moon1, string_moon2, string_moon3, string_moon4, string_moon5, string_moon6, string_moon7};
 
 prog_uint32_t minute_colors[] = {
   0x00FFFF,
