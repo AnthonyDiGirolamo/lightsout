@@ -100,86 +100,60 @@ class ColorPicker {
     }
 
     void begin() {
-      delay(1000);
       while (1) {
-        if (fading)
-          button = read_buttons(1);
-        else
-          button = read_buttons();
+        check_switches();
 
-        if (button <= 31 && button >= 0) {
-          switch(button) {
-            case 7:
-            case 23:
-              // more red
-              if (red < 255)
-                red++;
-              break;
-            case 3:
-            case 19:
-              // less red
-              if (red > 0)
-                red--;
-              break;
-            case 6:
-            case 22:
-              // more green
-              if (green < 255)
-                green++;
-              break;
-            case 2:
-            case 18:
-              // less green
-              if (green > 0)
-                green--;
-              break;
-            case 5:
-            case 21:
-              // more blue
-              if (blue < 255)
-                blue++;
-              break;
-            case 1:
-            case 17:
-              // less blue
-              if (blue > 0)
-                blue--;
-              break;
-            case 4:
-            case 20:
-              // use random
-              use_random_color();
-              generate_random_color();
-              break;
-            case 0:
-            case 16:
-              toggle_fading();
-              break;
-            case 15:
-            case 14:
-            case 13:
-            case 12:
-            case 11:
-            case 10:
-            case 9:
-            case 8:
-              toggle_all_lights();
-              break;
-            case 28:
-              EEPROM_writeAnything(0, Color(red, green, blue));
-              max_print_progmem(string_saved, 0, 0);
-              delay(500);
-              break;
-          }
-          update_color();
-          update_text();
-
-          // extra delay to slow down fast presses
-          if (button == 16 || button == 0 || button == 4 || button == 20)
-            delay(250);
-          else
-            delay(100);
+        if (currently_pressed[7]) {
+          // more red
+          if (red < 255)
+            red++;
+        } else if (currently_pressed[3]) {
+          // less red
+          if (red > 0)
+            red--;
         }
+
+        if (currently_pressed[6]) {
+          // more green
+          if (green < 255)
+            green++;
+        } else if (currently_pressed[2]) {
+          // less green
+          if (green > 0)
+            green--;
+        }
+
+        if (currently_pressed[5]) {
+          // more blue
+          if (blue < 255)
+            blue++;
+        } else if (currently_pressed[1]) {
+          // less blue
+          if (blue > 0)
+            blue--;
+        }
+
+        if (justpressed[4]) {
+          // use random
+          use_random_color();
+          generate_random_color();
+        }
+
+        if (justpressed[0]) {
+          toggle_fading();
+        }
+
+        if (justpressed[12]) {
+          EEPROM_writeAnything(0, Color(red, green, blue));
+          max_print_progmem(string_saved, 0, 0);
+          delay(500);
+        }
+
+        if (justpressed[8]) {
+          toggle_all_lights();
+        }
+        update_color();
+        update_text();
 
         if (millis()-timer > 3000) {
           generate_random_color();
