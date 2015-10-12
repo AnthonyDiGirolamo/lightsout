@@ -157,7 +157,16 @@ int read_buttons(uint8_t skip_delay = 0) {
 #define NUMBUTTONS 16
 #define DEBOUNCE 10  // button debounce time, how many ms to debounce, 5+ ms is usually plenty
 uint8_t currently_pressed[NUMBUTTONS], justpressed[NUMBUTTONS], justreleased[NUMBUTTONS];
+long hold_time[NUMBUTTONS];
 
+void clear_switches() {
+  uint8_t i;
+  for (i=0; i<16; i++) {
+    justreleased[i] = 0;
+    justpressed[i]  = 0;
+    hold_time[i] = 0;
+  }
+}
 void check_switches() {
   static unsigned long button_timer = millis();
   static uint16_t current_button_state, previous_button_state;
@@ -186,9 +195,11 @@ void check_switches() {
     if (currentstate == previousstate) { // if a button was really pressed/released
       if ((currently_pressed[i] == 0) && (currentstate == 1)) {
         justpressed[i] = 1;
+        hold_time[i] = button_timer;
       }
       else if ((currently_pressed[i] == 1) && (currentstate == 0)) {
         justreleased[i] = 1;
+        hold_time[i] = 0;
       }
       currently_pressed[i] = currentstate;
     }
