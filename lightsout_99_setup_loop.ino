@@ -27,6 +27,10 @@ void setup() {
   if (now.unixtime() < compiled.unixtime()) {
     //Serial.println("RTC is older than compile time!  Updating");
     RTC.adjust(DateTime(__DATE__, __TIME__));
+    // RTC.adjustTime(-7 * SECS_PER_HOUR); // PST
+    // RTC.adjustTime(-8 * SECS_PER_HOUR); // PST in daylight savings
+    // RTC.adjustTime(-5 * SECS_PER_HOUR); // EST
+    // RTC.adjustTime(-4 * SECS_PER_HOUR); // EST in daylight savings
   }
 
   // Setup port expander
