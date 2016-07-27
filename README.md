@@ -125,8 +125,6 @@ strip in the correct location in an array. I then use bit masking and shifting t
 if a single bit in the 16-bit unsigned integer is a 1 and if so set the light to
 on. Here is the loop I use to turn the lights on and off for a given board:
 
-Matrix for solving a given lights out game [Source File](https://github.com/AnthonyDiGirolamo/lightsout/blob/master/lightsout_02_helper_functions.ino)
-
 ```c
 void print_board(uint16_t board, uint32_t lit_color) {
   uint16_t lit = 0;
@@ -137,6 +135,8 @@ void print_board(uint16_t board, uint32_t lit_color) {
   strip.show();
 }
 ```
+
+[Source File](https://github.com/AnthonyDiGirolamo/lightsout/blob/master/lightsout_02_helper_functions.ino)
 
 ### Color Chooser
 
@@ -194,8 +194,6 @@ compute a solution for a given board a matrix vector multiplication needs to be
 performed. The 16x16 matrix is composed of only 1's and 0's so to save space I
 store it as an array of 16 bit integers.
 
-Matrix for solving a given lights out game [Source File](https://github.com/AnthonyDiGirolamo/lightsout/blob/master/lightsout_01_vars.ino)
-
 ```c
 // This is a matrix of 1's and 0's packed into 16 bit integers
 prog_uint16_t solving_matrix[] = {
@@ -237,12 +235,14 @@ prog_uint16_t solving_matrix[] = {
 // {0,0,0,1,0,0,0,0,0,0,0,1,1,0,1,1} }
 ```
 
+[Source File](https://github.com/AnthonyDiGirolamo/lightsout/blob/master/lightsout_01_vars.ino)
+
 Packing the matrix value like this adds a bit of code to the matrix vector
 multiply. It's still quite readable though. If you are unfamiliar with bitmath
 checkout [The Arduino Playground Bit Math Tutorial](http://playground.arduino.cc/Code/BitMath)
 and [Bit Twiddling Hacks](http://graphics.stanford.edu/~seander/bithacks.html)
 
-Matrix Vector Multiply [Source File](https://github.com/AnthonyDiGirolamo/lightsout/blob/master/lightsout_04_lights_out_class.ino)
+#### Matrix Vector Multiply
 
 ```c
 uint16_t find_solution() {
@@ -262,14 +262,16 @@ uint16_t find_solution() {
 }
 ```
 
+[Source File](https://github.com/AnthonyDiGirolamo/lightsout/blob/master/lightsout_04_lights_out_class.ino)
+
 As a side note, it's pretty easy to convert number bases in your editor if you
 can filter text through an external program. This is trivial in vim and is
-possible with other editors like TextMate. In vim, I filter the following text
+possible with other editors like emacs/atom/sublimetext. In vim, I filter the following text
 through `bc` "An arbitrary precision calculator language" available on almost
 any Linux distribution and MacOSX. The first two lines tell bc to output base 16
 and take base 2 as input (they should be set in that order).
 
-Base 2 input
+**Base 2 input**
 ```
 obase=16;ibase=2
 1101100000001000
@@ -292,7 +294,7 @@ obase=16;ibase=2
 
 The result, instant base 16 without leaving the editor!
 
-Base 16 output
+**Base 16 output**
 ```
 D808
 E404
