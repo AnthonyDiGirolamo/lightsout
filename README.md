@@ -22,7 +22,6 @@ effort paid off though and I'm happy with how it turned out.
 I took the lego approach while putting this together. Pick powerful components
 and wire them up. Here is a list of every part used and what I paid for it.
 
-| -------- | -------- | -----------------------------------------------------------------------------------------------------------------------------------------------------       |
 | Price    | Quantity | Item                                                                                                                                                        |
 | -------- | -------- | -----------------------------------------------------------------------------------------------------------------------------------------------------       |
 | $02.50   |          | [5/64 inch Balldriver](http://shop.evilmadscientist.com/productsmenu/partsmenu/202)                                                                         |
