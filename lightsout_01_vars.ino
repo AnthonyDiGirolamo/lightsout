@@ -26,71 +26,71 @@ RTC_DS3231 RTC;
 
 // Strings
 
-char string_empty[]    PROGMEM = "                ";
+const char string_empty[]    PROGMEM = "                ";
 
 // Main Menu
-char string_mainmenu1[] PROGMEM = "Main    ";
-char string_mainmenu2[] PROGMEM = "Menu    ";
-char string_lights[]   PROGMEM = "Lights  ";
-char string_out[]      PROGMEM = "Out     ";
-char string_color[]    PROGMEM = "Color   ";
-char string_picker[]   PROGMEM = "Chooser ";
-char string_calc[]     PROGMEM = "Calc    ";
-char string_clock[]    PROGMEM = "Clock   ";
+const char string_mainmenu1[] PROGMEM = "Main    ";
+const char string_mainmenu2[] PROGMEM = "Menu    ";
+const char string_lights[]   PROGMEM = "Lights  ";
+const char string_out[]      PROGMEM = "Out     ";
+const char string_color[]    PROGMEM = "Color   ";
+const char string_picker[]   PROGMEM = "Chooser ";
+const char string_calc[]     PROGMEM = "Calc    ";
+const char string_clock[]    PROGMEM = "Clock   ";
 
 // Lights Out
-char string_paused[]   PROGMEM = "Paused  ";
-char string_you[]      PROGMEM = "You";
-char string_win[]      PROGMEM = "Win";
-char string_perfect[]  PROGMEM = "Perfect ";
-char string_level[]    PROGMEM = "Level   ";
-char string_levels[]   PROGMEM = "Levels  ";
-char string_board[]    PROGMEM = "Board   ";
-char string_solution[] PROGMEM = "Solution";
-char string_restart[]  PROGMEM = "Restart ";
-char string_next[]     PROGMEM = "Next    ";
-char string_prev[]     PROGMEM = "Previous";
-char string_moves[]    PROGMEM = "Moves   ";
-char string_random[]   PROGMEM = "Random  ";
-char string_normal[]   PROGMEM = "Normal  ";
-char string_cancel[]   PROGMEM = "Resume  ";
+const char string_paused[]   PROGMEM = "Paused  ";
+const char string_you[]      PROGMEM = "You";
+const char string_win[]      PROGMEM = "Win";
+const char string_perfect[]  PROGMEM = "Perfect ";
+const char string_level[]    PROGMEM = "Level   ";
+const char string_levels[]   PROGMEM = "Levels  ";
+const char string_board[]    PROGMEM = "Board   ";
+const char string_solution[] PROGMEM = "Solution";
+const char string_restart[]  PROGMEM = "Restart ";
+const char string_next[]     PROGMEM = "Next    ";
+const char string_prev[]     PROGMEM = "Previous";
+const char string_moves[]    PROGMEM = "Moves   ";
+const char string_random[]   PROGMEM = "Random  ";
+const char string_normal[]   PROGMEM = "Normal  ";
+const char string_cancel[]   PROGMEM = "Resume  ";
 
 // Color Chooser
-char string_fade[]     PROGMEM = "Rainbow ";
-char string_full[]     PROGMEM = "Full    ";
-char string_half[]     PROGMEM = "Half    ";
-char string_saved[]    PROGMEM = "Saved   ";
+const char string_fade[]     PROGMEM = "Rainbow ";
+const char string_full[]     PROGMEM = "Full    ";
+const char string_half[]     PROGMEM = "Half    ";
+const char string_saved[]    PROGMEM = "Saved   ";
 
 // Clock
-char string_mon[]   PROGMEM = "Monday  ";
-char string_tue[]   PROGMEM = "Tuesday ";
-char string_wed[]   PROGMEM = "Wednesday";
-char string_thu[]   PROGMEM = "Thursday";
-char string_fri[]   PROGMEM = "Friday  ";
-char string_sat[]   PROGMEM = "Saturday";
-char string_sun[]   PROGMEM = "Sunday  ";
-char* string_days[] PROGMEM = {string_sun, string_mon, string_tue, string_wed, string_thu, string_fri, string_sat};
+const char string_mon[]   PROGMEM = "Monday  ";
+const char string_tue[]   PROGMEM = "Tuesday ";
+const char string_wed[]   PROGMEM = "Wednesday";
+const char string_thu[]   PROGMEM = "Thursday";
+const char string_fri[]   PROGMEM = "Friday  ";
+const char string_sat[]   PROGMEM = "Saturday";
+const char string_sun[]   PROGMEM = "Sunday  ";
+const char* const string_days[] PROGMEM = {string_sun, string_mon, string_tue, string_wed, string_thu, string_fri, string_sat};
 
-char string_moon0[] PROGMEM = "New Moon";
-char string_moon1[] PROGMEM = "    Moon";
-char string_moon2[] PROGMEM = "HalfMoon";
-char string_moon3[] PROGMEM = "    Moon";
-char string_moon4[] PROGMEM = "FullMoon";
-char string_moon5[] PROGMEM = "    Moon";
-char string_moon6[] PROGMEM = "HalfMoon";
-char string_moon7[] PROGMEM = "    Moon";
-char* string_moon_phases[] PROGMEM = {string_moon0, string_moon1, string_moon2, string_moon3, string_moon4, string_moon5, string_moon6, string_moon7};
+const char string_moon0[] PROGMEM = "New Moon";
+const char string_moon1[] PROGMEM = "    Moon";
+const char string_moon2[] PROGMEM = "HalfMoon";
+const char string_moon3[] PROGMEM = "    Moon";
+const char string_moon4[] PROGMEM = "FullMoon";
+const char string_moon5[] PROGMEM = "    Moon";
+const char string_moon6[] PROGMEM = "HalfMoon";
+const char string_moon7[] PROGMEM = "    Moon";
+const char* const string_moon_phases[] PROGMEM = {string_moon0, string_moon1, string_moon2, string_moon3, string_moon4, string_moon5, string_moon6, string_moon7};
 
-prog_uint32_t minute_colors[] = {
+uint32_t minute_colors[] = {
   0x00FFFF,
   0xFFCC00,
 };
-prog_uint32_t hour_colors[] = {
+uint32_t hour_colors[] = {
   0x3366FF,
   0xFF6600,
 };
 
-prog_uint8_t animation_hourglass[15][2] = {
+uint8_t animation_hourglass[15][2] = {
   {0, B00000010},
   {0, B00000110},
   {0, B10000110},
@@ -111,7 +111,7 @@ prog_uint8_t animation_hourglass[15][2] = {
 #define MENU_DELAY 1000
 
 // Color Schemes
-prog_uint32_t main_menu_color_schemes[] = {
+uint32_t main_menu_color_schemes[] = {
   0x000000, // off
   0xFF9000, // item 1
   0x0000FF, // item 2
@@ -120,7 +120,7 @@ prog_uint32_t main_menu_color_schemes[] = {
   0xFF00FF, // item 5
 };
 
-prog_uint32_t main_menu_color_schemes_dim[] = {
+uint32_t main_menu_color_schemes_dim[] = {
   0x000000, // off
   0x401800, // item 1
   0x000040, // item 2
@@ -129,7 +129,7 @@ prog_uint32_t main_menu_color_schemes_dim[] = {
   0x400040, // item 5
 };
 
-prog_uint32_t lights_out_color_schemes[] = {
+uint32_t lights_out_color_schemes[] = {
   0xFF9000, // on
   0x000000, // off
   0x000080, // on
@@ -139,7 +139,7 @@ uint8_t current_scheme = 0; // index of on color in color_schemes array
 
 // Lookup Tables
 
-prog_uint16_t space_masks[] = {
+uint16_t space_masks[] = {
   0x1,
   0x2,
   0x4,
@@ -158,7 +158,7 @@ prog_uint16_t space_masks[] = {
   0x8000
 };
 
-prog_uint8_t neighbors[16][4] = {
+uint8_t neighbors[16][4] = {
 // N   S   E   W
   {4,  12, 3,  1},
   {5,  13, 0,  2},
@@ -183,7 +183,7 @@ prog_uint8_t neighbors[16][4] = {
 // 7  6  5  4
 // 3  2  1  0
 
-prog_uint8_t board_light_index[] = {
+uint8_t board_light_index[] = {
   15,
   14,
   13,
@@ -220,7 +220,7 @@ prog_uint8_t board_light_index[] = {
 // 5  14 15 10
 // 6  7  8  9
 
-prog_uint8_t spiral_light_index[] = {
+uint8_t spiral_light_index[] = {
   0,
   1,
   2,
@@ -242,7 +242,7 @@ prog_uint8_t spiral_light_index[] = {
 // Matrix for solving a given lights out game
 // This is a matrix of 1's and 0's packed into 16 bit integers
 
-prog_uint16_t solving_matrix[] = {
+uint16_t solving_matrix[] = {
   0xD808,
   0xE404,
   0x7202,
@@ -261,7 +261,7 @@ prog_uint16_t solving_matrix[] = {
   0x101B
 };
 
-// prog_uint16_t uint16_t matrix_a[16][16] = {
+// uint16_t uint16_t matrix_a[16][16] = {
 //   {1,1,0,1,1,0,0,0,0,0,0,0,1,0,0,0},
 //   {1,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0},
 //   {0,1,1,1,0,0,1,0,0,0,0,0,0,0,1,0},
@@ -282,7 +282,7 @@ prog_uint16_t solving_matrix[] = {
 
 /* Mini Lights Out Levels */
 
-prog_uint16_t mini_lightsout_levels[] = {
+uint16_t mini_lightsout_levels[] = {
   0xA0A0,
   0xA0A0,
   0xF99F,
@@ -351,7 +351,7 @@ prog_uint16_t mini_lightsout_levels[] = {
 /* 0111111111111111 */
 /* 0100100000000001 */
 
-prog_uint16_t animation1[] = {
+uint16_t animation1[] = {
 0x0000,
 0x8000,
 0xC800,
@@ -399,7 +399,7 @@ obase=16;ibase=2;
 1110
 */
 
-prog_uint16_t animation2[] = {
+uint16_t animation2[] = {
 0x0000,
 0x1000,
 0x3100,
@@ -448,7 +448,7 @@ obase=16;ibase=2;
 
 */
 
-prog_uint8_t gamma[] = {
+uint8_t gamma[] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
     1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,

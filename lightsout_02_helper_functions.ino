@@ -57,7 +57,7 @@ void rainbowCycle(uint8_t wait) {
   }
 }
 
-void max_print_progmem(char* string, uint8_t col = -1, uint8_t row = -1, bool lowercase = 0) {
+void max_print_progmem(const char* string, uint8_t col = -1, uint8_t row = -1, bool lowercase = 0) {
   char buffer[32];
   strcpy_P(buffer, string);
   if (lowercase) {

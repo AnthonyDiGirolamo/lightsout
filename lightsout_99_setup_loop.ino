@@ -24,14 +24,17 @@ void setup() {
 
   DateTime now = RTC.now();
   DateTime compiled = DateTime(__DATE__, __TIME__);
-  if (now.unixtime() < compiled.unixtime()) {
+  if (now.unixtime() <= compiled.unixtime()) {
     //Serial.println("RTC is older than compile time!  Updating");
-    RTC.adjust(DateTime(__DATE__, __TIME__));
+    // RTC.adjust(DateTime(__DATE__, __TIME__));
     // RTC.adjustTime(-7 * SECS_PER_HOUR); // PST
     // RTC.adjustTime(-8 * SECS_PER_HOUR); // PST in daylight savings
     // RTC.adjustTime(-5 * SECS_PER_HOUR); // EST
     // RTC.adjustTime(-4 * SECS_PER_HOUR); // EST in daylight savings
+    // RTC.adjust(DateTime(compiled.unixtime() - 2*60*60));
+    RTC.adjust(compiled.unixtime());
   }
+
 
   // Setup port expander
   mcp.begin();
