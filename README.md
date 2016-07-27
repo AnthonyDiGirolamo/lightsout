@@ -1,5 +1,7 @@
 ## Lights Out Arcade Box
 
+> See also [The MAX6954 Arduino Library](https://github.com/AnthonyDiGirolamo/MAX6954)
+
 Over the past year I've been working on my first big hardware project. It
 started as an experiment in powering and controlling led displays. I love the
 blinky lights and wanted something big that would catch the eye.
@@ -181,7 +183,9 @@ on
 The [Lights Out Arduino Sketch](https://github.com/AnthonyDiGirolamo/lightsout)
 is mostly well organized. I've also written a
 [library for controlling the MAX6954's](https://github.com/AnthonyDiGirolamo/MAX6954).
-which keeps the lights out code simpler.
+which keeps the display code simpler.
+
+![Larson Scanner](https://raw.githubusercontent.com/AnthonyDiGirolamo/MAX6954/master/examples/larson/larson.gif)
 
 The sketch is organized into separate files. When compiled in the Arduino IDE
 the files are concatenated and then compiled as a single source file. The
